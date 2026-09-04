@@ -1,151 +1,164 @@
 # PipeForge
 
-**Crash-safe incremental ETL** — a production-style coding environment for evaluating whether an agent can repair a realistic data pipeline.
+Crash-safe incremental ETL with a Next.js control center.
 
-PipeForge receives JSONL product/activity events, loads them into a local SQLite warehouse, and exposes a CLI plus an animated control-center dashboard.
+PipeForge reads JSONL product and activity events, loads them into a local SQLite warehouse, and exposes a Python CLI plus a FastAPI API. The control center at `frontend/` is a typed UI over that API.
 
-## What capability does this evaluate?
-
-The agent must inspect an unfamiliar multi-file data-engineering repository and repair subtle correctness bugs: incremental ingestion, checkpointing, global deduplication, malformed input, timezones, monetary precision, schema evolution, and crash recovery.
-
-This is software engineering, not an algorithm puzzle.
-
-## Why is the task realistic?
-
-The starting tree looks like a small internal platform: parser, ingest, checkpoint, warehouse, metrics, quarantine, CLI, and a FastAPI dashboard. A single happy-path file succeeds. Failures appear on reruns, duplicates, corrupt lines, interruptions, offsets, cents, extra fields, and late data.
-
-## What is intentionally wrong?
-
-At a high level only: the starting pipeline can double-write on reruns, miss cross-file duplicates, checkpoint too early, leave partial files, abort on one bad line, mishandle timezones and money, reject additive fields, ignore late historical days, and skip a renamed-in-place file by name alone.
-
-Exact repairs are not listed in `task/instruction.md`.
-
-## How the pipeline works
-
-```mermaid
-flowchart TD
-    incoming[Incoming JSONL] --> parser[Parser / Validation]
-    parser -->|invalid| quarantine[Quarantine]
-    parser --> dedup[Deduplication]
-    dedup --> warehouse[Transactional Warehouse]
-    warehouse --> checkpoint[Checkpoint]
-    warehouse --> metrics[Daily Metrics]
-    checkpoint --> surfaces[CLI + Dashboard]
-    metrics --> surfaces
-    quarantine --> surfaces
+```text
+Next.js  (http://localhost:3000)
+    │  REST
+    ▼
+FastAPI  (http://127.0.0.1:8000 by default)
+    │
+    ▼
+Python ETL  →  SQLite warehouse
 ```
 
-Files land in `data/incoming/`. Eligible files are parsed line by line. Invalid lines go to `quarantine_records`. Valid events are inserted under a per-file transaction. After those writes commit, the file is checkpointed. Daily metrics are UTC date rollups. The CLI and dashboard call the same `run_pipeline` function.
+## Quick start
 
-## How is success verified?
+Use two terminals.
 
-Behavioral tests under `tests/` (copied to `/grader/tests` in Docker) check warehouse outcomes: counts, identities, aggregates, quarantine, and crash-rerun equivalence. They do not require exact SQL text or function names.
-
-## Edge cases
-
-Idempotent reruns, in-file and cross-file duplicates, conflicting ids, mixed valid/invalid JSON, missing fields, extra schema fields, UTC midnight boundaries, exact cents, late arrivals, changed-content files, and deterministic failure injection.
-
-## Grader attacks
-
-See `analysis/grader_attacks.md`. The suite blocks hardcoded filenames and counts, local-only dedup, wipe-and-rebuild warehouses, float rounding, timezone stripping, and checkpoint-before-commit shortcuts.
-
-## How do I run it?
+**1. API**
 
 ```bash
 cd environment/repo
 python -m pip install -r requirements.txt
+python -m pipeline.dashboard
+```
+
+The API listens on [http://127.0.0.1:8000](http://127.0.0.1:8000). If that port is already in use, start it on another port:
+
+```bash
+python -m uvicorn pipeline.dashboard:app --host 127.0.0.1 --port 8001
+```
+
+**2. Control center**
+
+```bash
+cd frontend
+npm install
+copy .env.example .env.local
+npm run dev
+```
+
+On macOS/Linux use `cp .env.example .env.local`.
+
+Open **[http://localhost:3000](http://localhost:3000)** — that is the app.
+
+Point the frontend at the API you started:
+
+```bash
+# frontend/.env.local
+NEXT_PUBLIC_PIPEFORGE_API_URL=http://127.0.0.1:8000
+```
+
+Use `8001` (or `8002`) in that file if you started FastAPI on that port. Do not put secrets in `NEXT_PUBLIC_*` variables.
+
+The UI also probes `8002`, `8001`, and `8000` and uses the first origin that answers `GET /api/health`.
+
+## What you can do in the UI
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Overview and run control |
+| `/pipeline` | Incremental ingest path |
+| `/runs` | Run history |
+| `/files` | Incoming JSONL files |
+| `/metrics` | UTC daily aggregates |
+| `/quarantine` | Rejected lines |
+| `/explorer` | Read-only warehouse events |
+| `/system` | Health and inventory |
+| `/settings` | Theme and display preferences |
+
+`Ctrl+K` / `Cmd+K` opens the command palette. Light, dark, and system themes persist in `localStorage` (`pipeforge.theme`).
+
+Demo buttons generate or reset synthetic JSONL only. They are not production ingest.
+
+## CLI
+
+```bash
+cd environment/repo
 python scripts/generate_demo_data.py
 python -m pipeline run
 python -m pipeline status
 ```
 
-Reset demo data (not a production CLI command):
+Reset the local warehouse and rewrite a demo batch:
 
 ```bash
 python scripts/reset_demo.py
 ```
 
-## How do I run the dashboard?
+## Incoming data
 
-The evaluation surface remains the Python CLI and FastAPI API. The production-style control center is a Next.js app in `frontend/`.
+Drop JSON Lines files in `environment/repo/data/incoming/`. Each line is one event:
 
-Backend API (required):
-
-```bash
-cd environment/repo
-python -m pipeline.dashboard
+```json
+{
+  "event_id": "evt_1001",
+  "user_id": "usr_83",
+  "event_type": "purchase",
+  "amount": "19.99",
+  "currency": "USD",
+  "occurred_at": "2026-08-12T21:42:13+05:30",
+  "source": "mobile"
+}
 ```
 
-Open [http://localhost:8000](http://localhost:8000) for the API and the legacy static page.
+Required: `event_id`, `user_id`, `event_type`, `occurred_at`, `source`.  
+`amount` and `currency` are optional. Unknown fields are ignored. `occurred_at` must be timezone-aware ISO-8601. Money is stored as integer minor units.
 
-Frontend control center:
+## API
+
+Thin wrappers over the same pipeline functions the CLI uses:
+
+- `GET /api/health`
+- `GET /api/status`
+- `GET /api/system`
+- `GET /api/runs` and `GET /api/runs/{run_id}`
+- `GET /api/files`
+- `GET /api/metrics`
+- `GET /api/quarantine` and `GET /api/quarantine/{id}`
+- `GET /api/events`, `GET /api/events/facets`, `GET /api/search?q=`
+- `POST /api/run`
+- `POST /api/demo/generate`
+- `POST /api/demo/reset`
+
+CORS allows `localhost:3000` by default. Extra origins: `PIPEFORGE_CORS_ORIGINS`.
+
+Warehouse paths: `PIPEFORGE_DB_PATH`, `PIPEFORGE_INCOMING_DIR`, `PIPEFORGE_QUARANTINE_DIR`.
+
+## Frontend checks
 
 ```bash
 cd frontend
-npm install
-npm run dev
+npm run lint
+npm run typecheck
+npm test
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Configure the API origin with `NEXT_PUBLIC_PIPEFORGE_API_URL` (default `http://127.0.0.1:8000`).
+Do not commit `.next/` or `.next-dev/`. Those folders are Next.js caches, not source.
 
-The Next.js app includes light/dark/system themes, animated pipeline controls, run/file/metric/quarantine explorers, and a command palette (`Ctrl+K` / `Cmd+K`). It never invents warehouse numbers; empty and offline states are shown when the API has no data or is unreachable.
+## Tests (pipeline verifier)
 
-See `frontend/README.md` for routes, environment variables, production build, and troubleshooting.
-
-## Frontend architecture
-
-```text
-Next.js control center  →  FastAPI /api/*  →  Python ETL  →  SQLite
-```
-
-The frontend is a typed client over existing pipeline functions. FastAPI stays thin. Docker evaluation still runs the Python verifier only; Node is not required to grade ETL correctness.
-
-## How do I run tests?
-
-From this directory, with `PYTHONPATH=environment/repo`:
+From the repository root, with `PYTHONPATH=environment/repo`:
 
 ```bash
 python -m pip install -r environment/repo/requirements.txt
 python -m pytest -q tests
 ```
 
-## How do I apply the reference solution?
-
-```bash
-python scripts/apply_reference_solution.py
-# or: scripts/apply_reference_solution.sh
-```
-
-## How do I reset to starting state?
-
-```bash
-python scripts/reset_environment.py
-# or: scripts/reset_environment.sh
-```
-
-## What result should I see before the reference patch?
+The starting tree is a coding-evaluation environment. Some reliability tests fail until the incremental ETL bugs are repaired. After the reference patch, the same suite should pass.
 
 ```bash
 python scripts/verify_starting_state.py
-# or: scripts/verify_starting_state.sh
-```
-
-Infrastructure must work (imports, CLI, simple happy-path ingest). Meaningful reliability tests **fail**. The script prints:
-
-`Starting state fails as expected. Environment is ready for an agent.`
-
-## What result should I see after it?
-
-```bash
+python scripts/apply_reference_solution.py
 python scripts/verify_reference_solution.py
-# or: scripts/verify_reference_solution.sh
+python scripts/reset_environment.py
 ```
-
-Every verifier test passes.
 
 ## Docker
-
-Build from this directory (no Compose, no network services):
 
 ```bash
 docker build -f environment/Dockerfile -t pipeforge .
@@ -154,22 +167,35 @@ docker run --rm -p 8000:8000 pipeforge python -m pipeline.dashboard
 docker run --rm pipeforge pytest -q /grader/tests
 ```
 
-Paths inside the image:
-
-- app workdir: `/workspace`
-- verifier: `/grader/tests`
-- warehouse: `PIPEFORGE_DB_PATH` (default `/workspace/data/warehouse.db`)
-- incoming: `PIPEFORGE_INCOMING_DIR`
+Grading uses the Python verifier only. Node is not required to score ETL correctness.
 
 ## Layout
 
 ```text
-task/                 Agent instruction and task.yaml
-environment/repo/     Starting application the agent edits
+task/                 Agent instruction
+environment/repo/     Python ETL, CLI, FastAPI
 environment/Dockerfile
-frontend/             Next.js control center (Talks to FastAPI)
-tests/                Authoritative behavioral verifier
-solution/             Reference patch and notes
-analysis/             Grader-attack notes and model-run log
-scripts/              Reset / apply / verify helpers
+frontend/             Next.js control center
+tests/                Behavioral verifier
+solution/             Reference patch
+scripts/              Apply / reset / verify helpers
 ```
+
+See `frontend/README.md` for frontend-only detail and `environment/repo/README.md` for warehouse rules.
+
+## Troubleshooting
+
+**The page looks unstyled**  
+Hard-refresh [http://localhost:3000](http://localhost:3000) (`Ctrl+Shift+R`). Confirm `npm run dev` is running in `frontend/`.
+
+**“API unavailable”**  
+Start FastAPI first, then confirm `NEXT_PUBLIC_PIPEFORGE_API_URL` matches that port.
+
+**Port 8000 is another app**  
+Start PipeForge on `8001` or `8002` and set `.env.local` to that origin.
+
+**Run stays Failed**  
+Generate a demo batch, then run the pipeline again. Invalid lines should quarantine; the run should complete.
+
+**Do not open `.next-dev/trace`**  
+That file is a Next.js performance log, not an application error.

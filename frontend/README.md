@@ -1,136 +1,48 @@
 # PipeForge Control Center
 
-Next.js App Router frontend for the PipeForge incremental ETL warehouse.
+Next.js App Router UI for the PipeForge warehouse. The Python pipeline, SQLite database, CLI, and FastAPI API stay the source of truth.
 
-The Python pipeline, SQLite warehouse, CLI, and FastAPI API remain the source of truth. This application is a typed control plane over those HTTP endpoints.
+## Run locally
 
-## Architecture
-
-```text
-Next.js (localhost:3000)
-        │  REST
-        ▼
-FastAPI dashboard (localhost:8000)
-        │
-        ▼
-Python ETL + SQLite
-```
-
-## Prerequisites
-
-- Node.js 20+
-- Python 3.12 and the backend dependencies in `environment/repo/requirements.txt`
-
-## Local setup
-
-Backend:
-
-```bash
-cd environment/repo
-python -m pip install -r requirements.txt
-python scripts/generate_demo_data.py
-python -m pipeline.dashboard
-```
-
-Frontend:
+Start FastAPI from `environment/repo` first (`python -m pipeline.dashboard`, default port **8000**). Then:
 
 ```bash
 cd frontend
 npm install
+copy .env.example .env.local
 npm run dev
 ```
 
-URLs:
-
-- Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend API / legacy static dashboard: [http://localhost:8000](http://localhost:8000)
-
-## Environment variables
-
-Copy `.env.example` to `.env.local` if needed:
+Open [http://localhost:3000](http://localhost:3000).
 
 ```bash
+# .env.local — public origin only, no secrets
 NEXT_PUBLIC_PIPEFORGE_API_URL=http://127.0.0.1:8000
 ```
 
-This value is a public API origin only. Do not put secrets in `NEXT_PUBLIC_*` variables.
+If FastAPI is on `8001` or `8002`, put that URL in `.env.local`. The client also probes `8002`, `8001`, and `8000` and uses the first healthy `/api/health` response.
 
-FastAPI already allows `http://localhost:3000` during development. Additional origins can be set with `PIPEFORGE_CORS_ORIGINS`.
-
-## Theme support
-
-The control center supports **Light**, **Dark**, and **System**.
-
-- System follows `prefers-color-scheme`
-- Manual choice is stored in `localStorage` under `pipeforge.theme`
-- A boot script applies the class before paint to avoid a theme flash
-- Charts, drawers, toasts, and tables use the same semantic tokens
-
-## Dashboard routes
-
-- `/` Overview
-- `/pipeline` Pipeline control
-- `/runs` Run history
-- `/files` Incoming files
-- `/metrics` Daily metrics
-- `/quarantine` Rejected records
-- `/explorer` Read-only warehouse events
-- `/system` Health and inventory
-- `/settings` Frontend preferences
-
-## API integration
-
-Typed clients live in `lib/api/`. They call:
-
-- `GET /api/health`
-- `GET /api/status`
-- `GET /api/system`
-- `GET /api/runs`
-- `GET /api/runs/{run_id}`
-- `GET /api/files`
-- `GET /api/metrics`
-- `GET /api/quarantine`
-- `GET /api/quarantine/{id}`
-- `GET /api/events`
-- `GET /api/events/facets`
-- `GET /api/search`
-- `POST /api/run`
-- `POST /api/demo/generate`
-- `POST /api/demo/reset`
-
-TanStack Query caches reads and invalidates them after mutations.
-
-## Production build
+## Scripts
 
 ```bash
-cd frontend
-npm install
+npm run dev
 npm run build
 npm run start
-```
-
-Also available:
-
-```bash
 npm run lint
 npm run typecheck
 npm test
 ```
 
-## Screenshots
+Do not commit `.next/` or `.next-dev/`.
 
-Add local screenshots here after a demo session if you want them in reviews.
+## Routes
+
+`/`, `/pipeline`, `/runs`, `/files`, `/metrics`, `/quarantine`, `/explorer`, `/system`, `/settings`
+
+Command palette: `Ctrl+K` / `Cmd+K`.
 
 ## Troubleshooting
 
-**API unavailable banner**
-Start FastAPI first (`python -m pipeline.dashboard`) and confirm `NEXT_PUBLIC_PIPEFORGE_API_URL`.
-
-**CORS errors**
-Use the default `http://localhost:3000` origin or set `PIPEFORGE_CORS_ORIGINS`.
-
-**Empty warehouse**
-Generate a demo batch from Overview or Pipeline, then run the pipeline.
-
-**Theme flash**
-Hard-refresh once after the first load so the stored theme is present.
+- **Unstyled page** — hard-refresh; keep `npm run dev` running.
+- **API banner** — start FastAPI and match `NEXT_PUBLIC_PIPEFORGE_API_URL` to its port.
+- **Empty warehouse** — Generate Demo Batch, then Run Pipeline.

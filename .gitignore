@@ -22,3 +22,4 @@ Thumbs.db
 .vscode/
 node_modules/
 .next/
+.next-dev/
