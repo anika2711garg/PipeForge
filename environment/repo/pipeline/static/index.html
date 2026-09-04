@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PipeForge Control Center</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-mark" aria-hidden="true"></div>
+        <div>
+          <h1>PipeForge</h1>
+          <p>Incremental Data Pipeline Control Center</p>
+        </div>
+      </div>
+      <nav>
+        <a href="#overview" class="nav-link active">Overview</a>
+        <a href="#pipeline" class="nav-link">Pipeline</a>
+        <a href="#runs" class="nav-link">Runs</a>
+        <a href="#files" class="nav-link">Incoming Files</a>
+        <a href="#metrics" class="nav-link">Daily Metrics</a>
+        <a href="#quarantine" class="nav-link">Quarantine</a>
+        <a href="#demo" class="nav-link">Demo Dataset</a>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="pulse-dot" id="db-dot"></span>
+        <span id="db-label">Checking warehouse…</span>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div>
+          <strong>PipeForge</strong>
+          <span class="badge">ETL Environment</span>
+        </div>
+        <div class="top-actions">
+          <span class="db-chip" id="db-chip">Database: unknown</span>
+          <button id="refresh-btn" class="btn ghost" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="overview" class="cards" aria-label="Overview">
+          <article class="card metric"><span>Warehouse Events</span><strong id="stat-events">—</strong></article>
+          <article class="card metric"><span>Processed Files</span><strong id="stat-files">—</strong></article>
+          <article class="card metric"><span>Quarantined Records</span><strong id="stat-quarantine">—</strong></article>
+          <article class="card metric"><span>Last Run Status</span><strong id="stat-run">—</strong></article>
+          <article class="card metric"><span>Latest Run Duration</span><strong id="stat-duration">—</strong></article>
+        </section>
+
+        <section id="pipeline" class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Incremental Pipeline</h2>
+              <p id="last-run-copy">Last run: Never Run</p>
+            </div>
+            <button id="run-btn" class="btn primary" type="button">Run Pipeline</button>
+          </div>
+        </section>
+
+        <section id="runs" class="panel">
+          <h2>Recent Runs</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run ID</th>
+                  <th>Started</th>
+                  <th>Finished</th>
+                  <th>Status</th>
+                  <th>Files</th>
+                  <th>Accepted</th>
+                  <th>Quarantined</th>
+                </tr>
+              </thead>
+              <tbody id="runs-body"></tbody>
+            </table>
+            <p class="empty" id="runs-empty">No pipeline runs recorded yet.</p>
+          </div>
+        </section>
+
+        <section id="files" class="panel">
+          <h2>Incoming Files</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>Size</th>
+                  <th>Processed</th>
+                  <th>Content hash</th>
+                  <th>Record count</th>
+                </tr>
+              </thead>
+              <tbody id="files-body"></tbody>
+            </table>
+            <p class="empty" id="files-empty">No JSONL files in the incoming directory.</p>
+          </div>
+        </section>
+
+        <section id="metrics" class="panel">
+          <h2>Daily Metrics</h2>
+          <div id="metrics-chart" class="chart" role="img" aria-label="Daily event counts"></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Event type</th>
+                  <th>Event count</th>
+                  <th>Total amount (minor units)</th>
+                </tr>
+              </thead>
+              <tbody id="metrics-body"></tbody>
+            </table>
+            <p class="empty" id="metrics-empty">No daily metrics yet.</p>
+          </div>
+        </section>
+
+        <section id="quarantine" class="panel">
+          <h2>Quarantine</h2>
+          <div id="quarantine-list" class="quarantine-list"></div>
+          <p class="empty" id="quarantine-empty">No quarantined records.</p>
+        </section>
+
+        <section id="demo" class="panel demo-panel">
+          <h2>Demo Dataset</h2>
+          <p>Synthetic demonstration tools only. These buttons are not part of production ingestion.</p>
+          <div class="btn-row">
+            <button id="demo-generate" class="btn" type="button">Generate Demo Batch</button>
+            <button id="demo-reset" class="btn danger" type="button">Reset Demo Data</button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="overlay" class="overlay hidden">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Working…</p>
+  </div>
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header>
+        <h3>Quarantine detail</h3>
+        <button id="modal-close" class="btn ghost" type="button">Close</button>
+      </header>
+      <pre id="modal-body"></pre>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

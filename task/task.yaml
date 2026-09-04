@@ -1,0 +1,16 @@
+name: pipeforge-incremental-etl
+language: python
+difficulty: hard
+
+environment:
+  dockerfile: environment/Dockerfile
+  workdir: /workspace
+
+task:
+  instruction: task/instruction.md
+
+verification:
+  command: pytest -q /grader/tests
+
+limits:
+  timeout_seconds: 300

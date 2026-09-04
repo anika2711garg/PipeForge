@@ -1,0 +1,346 @@
+--- a/pipeline/parser.py
++++ b/pipeline/parser.py
+@@ -3,10 +3,11 @@
+ from __future__ import annotations
+ 
+ import json
+-from datetime import datetime
++from datetime import datetime, timezone
++from decimal import Decimal, ROUND_HALF_EVEN
+ from typing import Any
+ 
+-from pydantic import BaseModel, ConfigDict, Field
++from pydantic import BaseModel, ConfigDict, ValidationError
+ 
+ from pipeline.models import ParsedEvent
+ 
+@@ -20,9 +21,9 @@
+ 
+ 
+ class EventRecord(BaseModel):
+-    """Inbound event schema. Extra fields are rejected."""
++    """Inbound event schema. Unknown fields are ignored."""
+ 
+-    model_config = ConfigDict(extra="forbid")
++    model_config = ConfigDict(extra="ignore")
+ 
+     event_id: str
+     user_id: str
+@@ -31,6 +32,10 @@
+     currency: str | None = None
+     occurred_at: str
+     source: str
++
++
++class ParseError(ValueError):
++    """A single JSONL line could not be turned into an event."""
+ 
+ 
+ def parse_json_line(line: str) -> dict[str, Any]:
+@@ -42,24 +47,45 @@
+     """Convert a monetary string into integer minor units."""
+     if value is None or value == "":
+         return None
+-    return int(float(value) * 100)
++    cents = (Decimal(str(value)) * Decimal(100)).quantize(
++        Decimal("1"), rounding=ROUND_HALF_EVEN
++    )
++    return int(cents)
+ 
+ 
+ def parse_timestamp(value: str) -> tuple[str, str]:
+-    """Return (occurred_at_utc_iso, metric_date)."""
++    """Return (occurred_at_utc_iso, metric_date) using timezone-aware UTC."""
+     dt = datetime.fromisoformat(value)
+-    naive = dt.replace(tzinfo=None)
+-    occurred_at_utc = naive.strftime("%Y-%m-%dT%H:%M:%S")
+-    metric_date = naive.date().isoformat()
++    if dt.tzinfo is None:
++        raise ParseError("occurred_at must be timezone-aware ISO-8601")
++    utc = dt.astimezone(timezone.utc)
++    occurred_at_utc = utc.strftime("%Y-%m-%dT%H:%M:%SZ")
++    metric_date = utc.date().isoformat()
+     return occurred_at_utc, metric_date
+ 
+ 
+ def parse_event_line(line: str) -> ParsedEvent:
+     """Parse and validate a single JSONL line into a ParsedEvent."""
+-    payload = parse_json_line(line)
+-    record = EventRecord.model_validate(payload)
+-    amount_minor = parse_amount(record.amount)
+-    occurred_at_utc, metric_date = parse_timestamp(record.occurred_at)
++    try:
++        payload = parse_json_line(line)
++    except json.JSONDecodeError as exc:
++        raise ParseError(f"malformed JSON: {exc.msg}") from exc
++    if not isinstance(payload, dict):
++        raise ParseError("record must be a JSON object")
++    try:
++        record = EventRecord.model_validate(payload)
++    except ValidationError as exc:
++        raise ParseError(f"invalid event: {exc.error_count()} field error(s)") from exc
++    try:
++        amount_minor = parse_amount(record.amount)
++    except Exception as exc:
++        raise ParseError("invalid monetary amount") from exc
++    try:
++        occurred_at_utc, metric_date = parse_timestamp(record.occurred_at)
++    except ParseError:
++        raise
++    except Exception as exc:
++        raise ParseError("invalid occurred_at timestamp") from exc
+     return ParsedEvent(
+         event_id=record.event_id,
+         user_id=record.user_id,
+--- a/pipeline/checkpoint.py
++++ b/pipeline/checkpoint.py
+@@ -18,14 +18,12 @@
+ 
+ 
+ def should_skip(warehouse: Warehouse, path: Path) -> bool:
+-    """Return True if this incoming file should not be ingested again."""
++    """Skip a file only when filename and content hash both match a success row."""
+     digest = content_hash(path)
+-    rows = warehouse.connection.execute(
+-        "SELECT 1 FROM processed_files WHERE content_hash = ? AND status = 'success'",
+-        (path.name,),
+-    ).fetchone()
+-    _ = digest
+-    return rows is not None
++    return any(
++        row.get("content_hash") == digest and row.get("status") == "success"
++        for row in warehouse.processed_files(path.name)
++    )
+ 
+ 
+ def mark_processed(
+--- a/pipeline/metrics.py
++++ b/pipeline/metrics.py
+@@ -2,40 +2,42 @@
+ 
+ from __future__ import annotations
+ 
+-from collections import defaultdict
++from collections.abc import Iterable
+ 
+-from pipeline.models import ParsedEvent
+ from pipeline.warehouse import Warehouse
+ 
+ 
+-def update_metrics(warehouse: Warehouse, events: list[ParsedEvent]) -> None:
+-    """Refresh aggregates for the newest date present in this batch."""
+-    if not events:
+-        return
++def recompute_metrics(warehouse: Warehouse, dates: Iterable[str]) -> None:
++    """Rebuild UTC daily aggregates for the supplied dates from warehouse rows."""
++    conn = warehouse.connection
++    for metric_date in sorted(set(dates)):
++        if not metric_date:
++            continue
++        conn.execute(
++            "DELETE FROM daily_metrics WHERE metric_date = ?",
++            (metric_date,),
++        )
++        rows = conn.execute(
++            """
++            SELECT event_type,
++                   COUNT(*) AS event_count,
++                   COALESCE(SUM(amount_minor_units), 0) AS total_amount_minor_units
++            FROM events
++            WHERE substr(occurred_at_utc, 1, 10) = ?
++            GROUP BY event_type
++            """,
++            (metric_date,),
++        ).fetchall()
++        for row in rows:
++            warehouse.insert_metric(
++                metric_date=metric_date,
++                event_type=row["event_type"],
++                event_count=int(row["event_count"]),
++                total_amount_minor_units=int(row["total_amount_minor_units"]),
++                commit=False,
++            )
+ 
+-    existing = warehouse.list_metrics()
+-    known_max = max((row["metric_date"] for row in existing), default=None)
+-    newest_in_batch = max(event.metric_date for event in events)
+ 
+-    if known_max is not None and newest_in_batch < known_max:
+-        return
+-
+-    target_date = newest_in_batch
+-    grouped: dict[tuple[str, str], list[ParsedEvent]] = defaultdict(list)
+-    for event in events:
+-        if event.metric_date != target_date:
+-            continue
+-        grouped[(event.metric_date, event.event_type)].append(event)
+-
+-    for (metric_date, event_type), group in grouped.items():
+-        total = 0.0
+-        for event in group:
+-            if event.amount_minor_units is not None:
+-                total += float(event.amount_minor_units) / 100.0
+-        warehouse.insert_metric(
+-            metric_date=metric_date,
+-            event_type=event_type,
+-            event_count=len(group),
+-            total_amount_minor_units=int(total * 100),
+-            commit=True,
+-        )
++def update_metrics(warehouse: Warehouse, dates: Iterable[str]) -> None:
++    """Compatibility wrapper used by ingest."""
++    recompute_metrics(warehouse, dates)
+--- a/pipeline/ingest.py
++++ b/pipeline/ingest.py
+@@ -7,9 +7,10 @@
+ 
+ from pipeline.checkpoint import mark_processed, should_skip
+ from pipeline.config import Settings
+-from pipeline.metrics import update_metrics
++from pipeline.metrics import recompute_metrics
+ from pipeline.models import FailureInjector, ParsedEvent, RunSummary
+-from pipeline.parser import parse_event_line
++from pipeline.parser import ParseError, parse_event_line
++from pipeline.quarantine import quarantine_record
+ from pipeline.warehouse import Warehouse, utc_now
+ 
+ 
+@@ -33,35 +34,84 @@
+     }
+ 
+ 
++def _core_from_event(event: ParsedEvent) -> tuple:
++    return (
++        event.user_id,
++        event.event_type,
++        event.amount_minor_units,
++        event.currency,
++        event.occurred_at_utc,
++        event.source,
++    )
++
++
++def _core_from_row(row: dict) -> tuple:
++    return (
++        row["user_id"],
++        row["event_type"],
++        row["amount_minor_units"],
++        row["currency"],
++        row["occurred_at_utc"],
++        row["source"],
++    )
++
++
+ def _process_file(
+     warehouse: Warehouse,
+     path: Path,
+     injector: FailureInjector | None,
+-) -> tuple[int, int, list[ParsedEvent]]:
++) -> tuple[int, int, int, list[ParsedEvent]]:
+     accepted = 0
+-    seen_local: set[str] = set()
++    duplicated = 0
++    quarantined = 0
+     parsed: list[ParsedEvent] = []
+ 
+-    mark_processed(warehouse, path, record_count=0, status="success", commit=True)
+-
+-    for _line_number, line in warehouse.iter_jsonl(path):
++    for line_number, line in warehouse.iter_jsonl(path):
+         if not line.strip():
+             continue
+-        event = parse_event_line(line)
+-        if event.event_id in seen_local:
++        try:
++            event = parse_event_line(line)
++        except (ParseError, Exception) as exc:
++            quarantine_record(
++                warehouse,
++                path.name,
++                line_number,
++                line,
++                str(exc) or "invalid record",
++                commit=False,
++            )
++            quarantined += 1
+             continue
+-        seen_local.add(event.event_id)
+-        warehouse.insert_event(_event_payload(event, path.name), commit=True)
++
++        existing = warehouse.get_event(event.event_id)
++        if existing is not None:
++            if _core_from_row(existing) == _core_from_event(event):
++                duplicated += 1
++                continue
++            quarantine_record(
++                warehouse,
++                path.name,
++                line_number,
++                line,
++                "conflicting duplicate event_id; original event retained",
++                commit=False,
++            )
++            quarantined += 1
++            continue
++
++        warehouse.insert_event(_event_payload(event, path.name), commit=False)
+         parsed.append(event)
+         accepted += 1
+         if injector is not None:
+             injector.notify_record_written()
+ 
++    recompute_metrics(warehouse, (event.metric_date for event in parsed))
++    if injector is not None:
++        injector.notify_after_write_before_checkpoint()
++    mark_processed(warehouse, path, record_count=accepted, status="success", commit=False)
+     if injector is not None:
+         injector.notify_before_commit()
+-        injector.notify_after_write_before_checkpoint()
+-
+-    return accepted, 0, parsed
++    return accepted, duplicated, quarantined, parsed
+ 
+ 
+ def run_pipeline(
+@@ -78,22 +128,25 @@
+         warehouse.start_run(run_id)
+         files = discover_files(settings.incoming_dir)
+         summary.files_discovered = len(files)
+-        accepted_events: list[ParsedEvent] = []
+ 
+         try:
+             for path in files:
+                 if should_skip(warehouse, path):
+                     summary.files_skipped += 1
+                     continue
+-                accepted, duplicated, parsed = _process_file(
+-                    warehouse, path, injector
+-                )
++                try:
++                    accepted, duplicated, quarantined, _parsed = _process_file(
++                        warehouse, path, injector
++                    )
++                    warehouse.connection.commit()
++                except Exception:
++                    warehouse.connection.rollback()
++                    raise
+                 summary.files_processed += 1
+                 summary.records_accepted += accepted
+                 summary.records_duplicated += duplicated
+-                accepted_events.extend(parsed)
+-
+-            update_metrics(warehouse, accepted_events)
++                summary.records_quarantined += quarantined
++
+             summary.status = "completed"
+             warehouse.finish_run(
+                 run_id,
+@@ -113,7 +166,7 @@
+                 records_quarantined=summary.records_quarantined,
+                 error=str(exc),
+             )
+-            if injector is not None and type(exc).__name__ == "IngestInjectionError":
++            if type(exc).__name__ == "IngestInjectionError":
+                 raise
+             return summary
+ 
