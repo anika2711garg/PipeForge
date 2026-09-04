@@ -1,0 +1,18 @@
+{"event_id":"evt_demo_1001","user_id":"usr_north_01","event_type":"signup","amount":null,"currency":null,"occurred_at":"2026-08-03T10:15:00+00:00","source":"web"}
+{"event_id":"evt_demo_1002","user_id":"usr_north_01","event_type":"page_view","amount":null,"currency":null,"occurred_at":"2026-08-03T10:16:22+00:00","source":"web","device_type":"desktop","app_version":"8.1.0"}
+{"event_id":"evt_demo_1003","user_id":"usr_north_01","event_type":"purchase","amount":"19.99","currency":"USD","occurred_at":"2026-08-03T10:18:04+00:00","source":"web"}
+{"event_id":"evt_demo_3000","user_id":"usr_west_0","event_type":"signup","amount":null,"currency":null,"occurred_at":"2026-08-04T18:00:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3001","user_id":"usr_west_1","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:01:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3002","user_id":"usr_west_2","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:02:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3003","user_id":"usr_west_3","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:03:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3004","user_id":"usr_west_0","event_type":"signup","amount":null,"currency":null,"occurred_at":"2026-08-04T18:04:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3005","user_id":"usr_west_1","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:05:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3006","user_id":"usr_west_2","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:06:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3007","user_id":"usr_west_3","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:07:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3008","user_id":"usr_west_0","event_type":"signup","amount":null,"currency":null,"occurred_at":"2026-08-04T18:08:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3009","user_id":"usr_west_1","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:09:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3010","user_id":"usr_west_2","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:10:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_3011","user_id":"usr_west_3","event_type":"purchase","amount":"99.99","currency":"USD","occurred_at":"2026-08-04T18:11:00-04:00","source":"ios","experiment":"checkout_v2"}
+{"event_id":"evt_demo_dup_shared","user_id":"usr_shared","event_type":"purchase","amount":"0.10","currency":"USD","occurred_at":"2026-08-04T12:00:00+00:00","source":"mobile"}
+{this is not valid json
+{"event_id":"evt_demo_late_hist","user_id":"usr_late","event_type":"purchase","amount":"10.07","currency":"USD","occurred_at":"2026-08-01T09:00:00+00:00","source":"web"}

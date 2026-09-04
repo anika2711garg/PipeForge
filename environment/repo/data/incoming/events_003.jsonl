@@ -1,0 +1,2 @@
+{"event_id":"evt_demo_repeat_cents","user_id":"usr_cents","event_type":"purchase","amount":"0.10","currency":"USD","occurred_at":"2026-08-04T20:00:00+00:00","source":"web"}
+{"event_id":"evt_demo_repeat_cents_b","user_id":"usr_cents","event_type":"purchase","amount":"0.20","currency":"USD","occurred_at":"2026-08-04T20:01:00+00:00","source":"web"}

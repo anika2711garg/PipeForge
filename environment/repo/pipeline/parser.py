@@ -20,9 +20,9 @@ REQUIRED_FIELDS = (
 
 
 class EventRecord(BaseModel):
-    """Inbound event schema. Extra fields are rejected."""
+    """Inbound event schema. Unknown fields are ignored so a run can finish."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     event_id: str
     user_id: str

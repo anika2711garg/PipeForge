@@ -322,6 +322,107 @@ class Warehouse:
             metrics = [m for m in metrics if m["metric_date"] == metric_date]
         return int(sum(int(m["event_count"] or 0) for m in metrics))
 
+    def get_run(self, run_id: str) -> dict[str, Any] | None:
+        row = self._conn.execute(
+            "SELECT * FROM pipeline_runs WHERE run_id = ?",
+            (run_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+    def get_quarantine_record(self, record_id: int) -> dict[str, Any] | None:
+        row = self._conn.execute(
+            "SELECT * FROM quarantine_records WHERE id = ?",
+            (record_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+    def event_facets(self) -> dict[str, list[str]]:
+        def _values(column: str) -> list[str]:
+            rows = self._conn.execute(
+                f"SELECT DISTINCT {column} AS value FROM events "
+                f"WHERE {column} IS NOT NULL AND {column} != '' "
+                "ORDER BY value"
+            ).fetchall()
+            return [str(row["value"]) for row in rows]
+
+        return {
+            "event_types": _values("event_type"),
+            "currencies": _values("currency"),
+            "sources": _values("source"),
+        }
+
+    def currency_totals(self) -> list[dict[str, Any]]:
+        rows = self._conn.execute(
+            """
+            SELECT COALESCE(currency, 'UNKNOWN') AS currency,
+                   COUNT(*) AS event_count,
+                   COALESCE(SUM(amount_minor_units), 0) AS total_amount_minor_units
+            FROM events
+            GROUP BY COALESCE(currency, 'UNKNOWN')
+            ORDER BY currency
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def query_events(
+        self,
+        *,
+        search: str | None = None,
+        event_type: str | None = None,
+        currency: str | None = None,
+        source: str | None = None,
+        limit: int = 50,
+        offset: int = 0,
+        sort: str = "id",
+        order: str = "desc",
+    ) -> tuple[list[dict[str, Any]], int]:
+        allowed_sort = {
+            "id",
+            "event_id",
+            "user_id",
+            "event_type",
+            "amount_minor_units",
+            "currency",
+            "occurred_at_utc",
+            "source",
+            "source_file",
+            "ingested_at",
+        }
+        sort_column = sort if sort in allowed_sort else "id"
+        direction = "DESC" if str(order).lower() == "desc" else "ASC"
+        safe_limit = max(1, min(int(limit), 200))
+        safe_offset = max(0, int(offset))
+
+        clauses: list[str] = []
+        params: list[Any] = []
+        if search:
+            like = f"%{search}%"
+            clauses.append(
+                "(event_id LIKE ? OR user_id LIKE ? OR source_file LIKE ? OR source LIKE ?)"
+            )
+            params.extend([like, like, like, like])
+        if event_type:
+            clauses.append("event_type = ?")
+            params.append(event_type)
+        if currency:
+            clauses.append("currency = ?")
+            params.append(currency)
+        if source:
+            clauses.append("source = ?")
+            params.append(source)
+
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+        count_row = self._conn.execute(
+            f"SELECT COUNT(*) AS n FROM events {where}",
+            params,
+        ).fetchone()
+        rows = self._conn.execute(
+            f"SELECT * FROM events {where} ORDER BY {sort_column} {direction} "
+            "LIMIT ? OFFSET ?",
+            [*params, safe_limit, safe_offset],
+        ).fetchall()
+        return [dict(row) for row in rows], int(count_row["n"])
+
     def incoming_files(self) -> list[dict[str, Any]]:
         incoming = self.settings.incoming_dir
         if not incoming.exists():
@@ -338,6 +439,7 @@ class Warehouse:
                     "content_hash": (latest or {}).get("content_hash"),
                     "record_count": (latest or {}).get("record_count"),
                     "status": (latest or {}).get("status"),
+                    "processed_at": (latest or {}).get("processed_at"),
                 }
             )
         return result

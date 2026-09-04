@@ -166,6 +166,14 @@ async function refresh() {
     $("last-run-copy").textContent = latest
       ? `Last run: ${latest.status}`
       : "Last run: Never Run";
+    const headline = $("stat-headline");
+    if (headline) {
+      if (!latest) headline.textContent = "Idle";
+      else if (latest.status === "completed") headline.textContent = "Live";
+      else if (latest.status === "failed") headline.textContent = "Failed";
+      else if (latest.status === "running") headline.textContent = "Running";
+      else headline.textContent = latest.status;
+    }
 
     const online = Boolean(status.database_exists);
     $("db-dot").className = `pulse-dot ${online ? "ok" : "bad"}`;

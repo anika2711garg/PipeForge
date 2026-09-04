@@ -67,27 +67,38 @@ python scripts/reset_demo.py
 
 ## How do I run the dashboard?
 
-```bash
-cd environment/repo
-python -m pipeline.dashboard
-```
+The evaluation surface remains the Python CLI and FastAPI API. The production-style control center is a Next.js app in `frontend/`.
 
-Open [http://localhost:8000](http://localhost:8000). FastAPI serves local HTML, CSS, and JavaScript only (no Node, no CDN). Cards, charts, toasts, and the grid background are CSS/JS animated.
-
-An optional Next.js App Router source lives in `environment/repo/web` if you want a Framer Motion development UI. Evaluation and Docker do not require it:
+Backend API (required):
 
 ```bash
 cd environment/repo
 python -m pipeline.dashboard
 ```
 
+Open [http://localhost:8000](http://localhost:8000) for the API and the legacy static page.
+
+Frontend control center:
+
 ```bash
-cd environment/repo/web
+cd frontend
 npm install
 npm run dev
 ```
 
-The Next.js dev server on [http://localhost:3000](http://localhost:3000) calls the FastAPI API on port 8000.
+Open [http://localhost:3000](http://localhost:3000). Configure the API origin with `NEXT_PUBLIC_PIPEFORGE_API_URL` (default `http://127.0.0.1:8000`).
+
+The Next.js app includes light/dark/system themes, animated pipeline controls, run/file/metric/quarantine explorers, and a command palette (`Ctrl+K` / `Cmd+K`). It never invents warehouse numbers; empty and offline states are shown when the API has no data or is unreachable.
+
+See `frontend/README.md` for routes, environment variables, production build, and troubleshooting.
+
+## Frontend architecture
+
+```text
+Next.js control center  →  FastAPI /api/*  →  Python ETL  →  SQLite
+```
+
+The frontend is a typed client over existing pipeline functions. FastAPI stays thin. Docker evaluation still runs the Python verifier only; Node is not required to grade ETL correctness.
 
 ## How do I run tests?
 
@@ -156,6 +167,7 @@ Paths inside the image:
 task/                 Agent instruction and task.yaml
 environment/repo/     Starting application the agent edits
 environment/Dockerfile
+frontend/             Next.js control center (Talks to FastAPI)
 tests/                Authoritative behavioral verifier
 solution/             Reference patch and notes
 analysis/             Grader-attack notes and model-run log

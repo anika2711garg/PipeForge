@@ -3,27 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PipeForge Control Center</title>
+  <title>PipeForge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <div class="bg-grid" aria-hidden="true"></div>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo-mark" aria-hidden="true"></div>
+        <div class="logo-mark" aria-hidden="true">P</div>
         <div>
           <h1>PipeForge</h1>
-          <p>Incremental Data Pipeline Control Center</p>
         </div>
       </div>
       <nav>
+        <p class="nav-label">Monitor</p>
         <a href="#overview" class="nav-link active">Overview</a>
         <a href="#pipeline" class="nav-link">Pipeline</a>
         <a href="#runs" class="nav-link">Runs</a>
+        <p class="nav-label">Warehouse</p>
         <a href="#files" class="nav-link">Incoming Files</a>
         <a href="#metrics" class="nav-link">Daily Metrics</a>
         <a href="#quarantine" class="nav-link">Quarantine</a>
+        <p class="nav-label">Sandbox</p>
         <a href="#demo" class="nav-link">Demo Dataset</a>
       </nav>
       <div class="sidebar-foot">
@@ -34,33 +38,44 @@
 
     <div class="workspace">
       <header class="topbar">
-        <div>
-          <strong>PipeForge</strong>
-          <span class="badge">ETL Environment</span>
-        </div>
+        <span class="db-chip" id="db-chip">Database: unknown</span>
         <div class="top-actions">
-          <span class="db-chip" id="db-chip">Database: unknown</span>
           <button id="refresh-btn" class="btn ghost" type="button">Refresh</button>
         </div>
       </header>
 
       <main>
-        <section id="overview" class="cards" aria-label="Overview">
-          <article class="card metric"><span>Warehouse Events</span><strong id="stat-events">—</strong></article>
-          <article class="card metric"><span>Processed Files</span><strong id="stat-files">—</strong></article>
-          <article class="card metric"><span>Quarantined Records</span><strong id="stat-quarantine">—</strong></article>
-          <article class="card metric"><span>Last Run Status</span><strong id="stat-run">—</strong></article>
-          <article class="card metric"><span>Latest Run Duration</span><strong id="stat-duration">—</strong></article>
+        <section id="overview" class="hero" aria-label="Overview">
+          <p class="eyebrow">Incremental ETL</p>
+          <h2 class="display" id="stat-headline">Idle</h2>
+          <p id="last-run-copy">Last run: Never Run</p>
+          <div class="hero-actions">
+            <button id="run-btn" class="btn primary" type="button">Run Pipeline</button>
+          </div>
+        </section>
+
+        <section class="ticker" aria-label="Warehouse snapshot">
+          <article class="stat"><span>Events</span><strong id="stat-events">—</strong></article>
+          <article class="stat"><span>Files</span><strong id="stat-files">—</strong></article>
+          <article class="stat"><span>Quarantine</span><strong id="stat-quarantine">—</strong></article>
+          <article class="stat"><span>Last run</span><strong id="stat-run">—</strong></article>
+          <article class="stat"><span>Duration</span><strong id="stat-duration">—</strong></article>
         </section>
 
         <section id="pipeline" class="panel">
           <div class="panel-head">
             <div>
-              <h2>Incremental Pipeline</h2>
-              <p id="last-run-copy">Last run: Never Run</p>
+              <h2>Path</h2>
+              <p>Invalid lines leave after Validate.</p>
             </div>
-            <button id="run-btn" class="btn primary" type="button">Run Pipeline</button>
           </div>
+          <ol class="path">
+            <li><small>01</small>Incoming</li>
+            <li><small>02</small>Validate</li>
+            <li><small>03</small>Dedup</li>
+            <li><small>04</small>Warehouse</li>
+            <li><small>05</small>Metrics</li>
+          </ol>
         </section>
 
         <section id="runs" class="panel">

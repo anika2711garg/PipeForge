@@ -56,9 +56,35 @@ python scripts/generate_demo_data.py
 python scripts/reset_demo.py
 ```
 
-Dashboard: [http://localhost:8000](http://localhost:8000)
+Dashboard API: [http://localhost:8000](http://localhost:8000)
 
-The control center at [http://localhost:8000](http://localhost:8000) is local HTML/CSS/JS with CSS animations. Optional Next.js source is in `web/` (`npm run dev`) and talks to the same FastAPI API.
+The FastAPI process serves `/api/*` and a legacy static page. The production-style control center is the Next.js app at the repository `frontend/` directory:
+
+```bash
+cd ../../frontend
+npm install
+npm run dev
+```
+
+Frontend: [http://localhost:3000](http://localhost:3000)
+
+Set `NEXT_PUBLIC_PIPEFORGE_API_URL=http://127.0.0.1:8000` if you are not using the default. Additional CORS origins can be supplied with `PIPEFORGE_CORS_ORIGINS`.
+
+Dashboard API (thin wrappers over pipeline functions):
+
+- `GET /api/health` — API, SQLite, and incoming-directory health
+- `GET /api/status` — warehouse snapshot used by CLI and the control center
+- `GET /api/system` — safe inventory (no absolute filesystem paths)
+- `GET /api/runs` and `GET /api/runs/{run_id}`
+- `GET /api/files` — incoming files plus current hash / changed-content flag
+- `GET /api/metrics`
+- `GET /api/quarantine` and `GET /api/quarantine/{id}`
+- `GET /api/events` — paginated read-only explorer (no arbitrary SQL)
+- `GET /api/events/facets`
+- `GET /api/search?q=`
+- `POST /api/run`
+- `POST /api/demo/generate`
+- `POST /api/demo/reset`
 
 Environment variables:
 

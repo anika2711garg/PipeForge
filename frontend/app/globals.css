@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 28 32% 96%;
+  --foreground: 222 40% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 40% 10%;
+  --muted: 28 20% 92%;
+  --muted-foreground: 222 12% 38%;
+  --border: 28 16% 86%;
+  --input: 28 16% 86%;
+  --primary: 22 88% 42%;
+  --primary-foreground: 30 100% 98%;
+  --success: 160 70% 28%;
+  --success-foreground: 0 0% 100%;
+  --warning: 32 95% 42%;
+  --warning-foreground: 0 0% 100%;
+  --destructive: 0 78% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --info: 205 80% 38%;
+  --info-foreground: 0 0% 100%;
+  --heat: 22 92% 52%;
+  --sidebar: 222 36% 10%;
+  --sidebar-foreground: 32 20% 96%;
+  --sidebar-border: 222 20% 16%;
+  --sidebar-accent: 222 22% 15%;
+  --shadow-card: 0 10px 32px rgba(40, 22, 10, 0.08);
+  --shadow-pop: 0 24px 60px rgba(40, 22, 10, 0.16);
+  --radius: 18px;
+  --glow: 22 92% 52%;
+  color-scheme: light;
+}
+
+.dark {
+  --background: 222 42% 5%;
+  --foreground: 36 28% 96%;
+  --card: 222 32% 8%;
+  --card-foreground: 36 28% 96%;
+  --muted: 222 24% 12%;
+  --muted-foreground: 220 12% 68%;
+  --border: 222 18% 16%;
+  --input: 222 18% 18%;
+  --primary: 24 96% 58%;
+  --primary-foreground: 20 40% 8%;
+  --success: 160 72% 46%;
+  --success-foreground: 160 50% 8%;
+  --warning: 38 96% 58%;
+  --warning-foreground: 36 50% 8%;
+  --destructive: 0 82% 66%;
+  --destructive-foreground: 0 50% 8%;
+  --info: 200 92% 68%;
+  --info-foreground: 205 50% 8%;
+  --heat: 24 96% 58%;
+  --sidebar: 222 44% 4%;
+  --sidebar-foreground: 36 28% 96%;
+  --sidebar-border: 222 22% 12%;
+  --sidebar-accent: 222 26% 10%;
+  --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 28px 70px rgba(0, 0, 0, 0.5);
+  --glow: 24 96% 58%;
+  color-scheme: dark;
+}
+
+* { border-color: hsl(var(--border)); }
+
+html, body { min-height: 100%; }
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+.display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+}
+
+.glass {
+  background: color-mix(in oklab, hsl(var(--card)) 86%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-card);
+}
+
+.atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.atmosphere .orb {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(70px);
+  opacity: 0.42;
+}
+
+.atmosphere .orb-a {
+  width: 28rem;
+  height: 28rem;
+  left: -6rem;
+  top: -8rem;
+  background: hsl(var(--primary) / 0.28);
+  animation: orb-drift 16s ease-in-out infinite alternate;
+}
+
+.atmosphere .orb-b {
+  width: 22rem;
+  height: 22rem;
+  right: -4rem;
+  top: 8rem;
+  background: hsl(200 90% 50% / 0.16);
+  animation: orb-drift 22s ease-in-out infinite alternate-reverse;
+}
+
+.atmosphere .orb-c {
+  width: 18rem;
+  height: 18rem;
+  left: 40%;
+  bottom: -6rem;
+  background: hsl(152 70% 40% / 0.12);
+  animation: orb-drift 18s ease-in-out infinite alternate;
+}
+
+.atmosphere .mesh {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(hsl(var(--foreground) / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(var(--foreground) / 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black, transparent 72%);
+  animation: mesh-shift 28s linear infinite;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.28) transparent;
+}
+
+.raw-block {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+.glow-ring {
+  box-shadow: 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 28px hsl(var(--primary) / 0.18);
+}
+
+@keyframes orb-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(36px, 24px, 0) scale(1.08); }
+}
+
+@keyframes mesh-shift {
+  from { background-position: 0 0; }
+  to { background-position: 44px 44px; }
+}
+
+@keyframes flow-line {
+  from { stroke-dashoffset: 48; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes spark {
+  0% { offset-distance: 0%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere .orb,
+  .atmosphere .mesh {
+    animation: none;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -10,6 +10,7 @@ from pipeline.config import Settings
 from pipeline.metrics import update_metrics
 from pipeline.models import FailureInjector, ParsedEvent, RunSummary
 from pipeline.parser import parse_event_line
+from pipeline.quarantine import quarantine_record
 from pipeline.warehouse import Warehouse, utc_now
 
 
@@ -37,17 +38,23 @@ def _process_file(
     warehouse: Warehouse,
     path: Path,
     injector: FailureInjector | None,
-) -> tuple[int, int, list[ParsedEvent]]:
+) -> tuple[int, int, int, list[ParsedEvent]]:
     accepted = 0
+    quarantined = 0
     seen_local: set[str] = set()
     parsed: list[ParsedEvent] = []
 
     mark_processed(warehouse, path, record_count=0, status="success", commit=True)
 
-    for _line_number, line in warehouse.iter_jsonl(path):
+    for line_number, line in warehouse.iter_jsonl(path):
         if not line.strip():
             continue
-        event = parse_event_line(line)
+        try:
+            event = parse_event_line(line)
+        except Exception as exc:
+            quarantine_record(warehouse, path, line_number, line, str(exc), commit=True)
+            quarantined += 1
+            continue
         if event.event_id in seen_local:
             continue
         seen_local.add(event.event_id)
@@ -61,7 +68,7 @@ def _process_file(
         injector.notify_before_commit()
         injector.notify_after_write_before_checkpoint()
 
-    return accepted, 0, parsed
+    return accepted, 0, quarantined, parsed
 
 
 def run_pipeline(
@@ -85,12 +92,13 @@ def run_pipeline(
                 if should_skip(warehouse, path):
                     summary.files_skipped += 1
                     continue
-                accepted, duplicated, parsed = _process_file(
+                accepted, duplicated, quarantined, parsed = _process_file(
                     warehouse, path, injector
                 )
                 summary.files_processed += 1
                 summary.records_accepted += accepted
                 summary.records_duplicated += duplicated
+                summary.records_quarantined += quarantined
                 accepted_events.extend(parsed)
 
             update_metrics(warehouse, accepted_events)
