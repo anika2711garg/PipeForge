@@ -1,0 +1,20 @@
+[
+  { "id": "p01", "name": "Aurora Desk Lamp", "sku": "LAMP-01", "category": "lighting", "priceCents": 4200, "stock": 12 },
+  { "id": "p02", "name": "Cable & Adapter Kit", "sku": "CBL-09", "category": "accessories", "priceCents": 1500, "stock": 40 },
+  { "id": "p03", "name": "Cedar Notebook", "sku": "NOTE-02", "category": "stationery", "priceCents": 900, "stock": 25 },
+  { "id": "p04", "name": "Delta Mug", "sku": "MUG-04", "category": "kitchen", "priceCents": 1800, "stock": 18 },
+  { "id": "p05", "name": "Echo Headphones", "sku": "AUD-11", "category": "audio", "priceCents": 8900, "stock": 7 },
+  { "id": "p06", "name": "Frost Bottle", "sku": "BTL-03", "category": "kitchen", "priceCents": 1800, "stock": 22 },
+  { "id": "p07", "name": "Grove Plant Stand", "sku": "HOME-07", "category": "home", "priceCents": 5600, "stock": 5 },
+  { "id": "p08", "name": "Harbor Backpack", "sku": "BAG-15", "category": "accessories", "priceCents": 6400, "stock": 9 },
+  { "id": "p09", "name": "Ion Power Bank", "sku": "PWR-20", "category": "accessories", "priceCents": 3200, "stock": 30 },
+  { "id": "p10", "name": "Jade Mousepad", "sku": "DESK-08", "category": "accessories", "priceCents": 1500, "stock": 50 },
+  { "id": "p11", "name": "Kepler Keycaps", "sku": "KEY-05", "category": "accessories", "priceCents": 4500, "stock": 14 },
+  { "id": "p12", "name": "Lumen Strip Light", "sku": "LAMP-22", "category": "lighting", "priceCents": 2700, "stock": 16 },
+  { "id": "p13", "name": "Maple Cutting Board", "sku": "KIT-18", "category": "kitchen", "priceCents": 3500, "stock": 11 },
+  { "id": "p14", "name": "Nimbus Chair Mat", "sku": "DESK-30", "category": "home", "priceCents": 5600, "stock": 8 },
+  { "id": "p15", "name": "Orbit Webcam", "sku": "CAM-01", "category": "audio", "priceCents": 7200, "stock": 6 },
+  { "id": "p16", "name": "Paperclip Twin Pack", "sku": "NOTE-99", "category": "stationery", "priceCents": 400, "stock": 100 },
+  { "id": "p17", "name": "Quartz Desk Clock", "sku": "HOME-12", "category": "home", "priceCents": 2900, "stock": 13 },
+  { "id": "p18", "name": "River Pen Set", "sku": "NOTE-44", "category": "stationery", "priceCents": 1200, "stock": 33 }
+]

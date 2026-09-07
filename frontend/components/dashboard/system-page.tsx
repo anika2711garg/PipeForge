@@ -1,12 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 import { ErrorState } from "@/components/feedback/error-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { getApiBaseUrl } from "@/lib/api/client";
+import { getApiBaseUrl, resolveApiOrigin } from "@/lib/api/client";
 import { fetchSystem } from "@/lib/api/health";
 import { formatTimestamp } from "@/lib/format/dates";
 import { formatInteger } from "@/lib/format/numbers";
@@ -40,6 +41,10 @@ export function SystemPage() {
     queryFn: fetchSystem,
     refetchInterval: preferences.autoRefresh ? preferences.refreshIntervalMs : false,
   });
+  const origin = useQuery({
+    queryKey: queryKeys.apiOrigin,
+    queryFn: resolveApiOrigin,
+  });
 
   if (system.isError) {
     return (
@@ -67,11 +72,11 @@ export function SystemPage() {
         </div>
       ) : data ? (
         <>
-          <section className="glass grid gap-8 rounded-3xl border border-border p-6 md:grid-cols-3">
+          <section className="grid gap-8 border-y border-border py-8 md:grid-cols-3">
             <HealthRow
               title="FastAPI"
               status={data.api === "healthy" ? "healthy" : data.api}
-              detail={`Control API at ${getApiBaseUrl()}`}
+              detail={`Control API at ${origin.data ?? getApiBaseUrl()}`}
             />
             <HealthRow
               title="SQLite"
@@ -86,7 +91,7 @@ export function SystemPage() {
           </section>
           <section className="grid gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
             <p>Backend version: {data.backend_version}</p>
-            <p>Frontend version: 1.0.0</p>
+            <p>Frontend version: 1.1.0</p>
             <p>Warehouse events: {formatInteger(data.total_events)}</p>
             <p>Logical events: {formatInteger(data.logical_events)}</p>
             <p>Processed files: {formatInteger(data.total_processed_files)}</p>
@@ -95,16 +100,32 @@ export function SystemPage() {
             <p>Checked: {formatTimestamp(data.checked_at, preferences.timeDisplay)}</p>
             <p>
               Last successful run:{" "}
-              {data.last_successful_run
-                ? `${data.last_successful_run.run_id} · ${formatTimestamp(data.last_successful_run.completed_at, preferences.timeDisplay)}`
-                : "None"}
+              {data.last_successful_run ? (
+                <Link className="underline-offset-4 hover:underline" href={`/runs/${data.last_successful_run.run_id}`}>
+                  {data.last_successful_run.run_id}
+                </Link>
+              ) : (
+                "None"
+              )}
             </p>
             <p>
               Last failed run:{" "}
-              {data.last_failed_run
-                ? `${data.last_failed_run.run_id} · ${formatTimestamp(data.last_failed_run.completed_at, preferences.timeDisplay)}`
-                : "None"}
+              {data.last_failed_run ? (
+                <Link className="underline-offset-4 hover:underline" href={`/runs/${data.last_failed_run.run_id}`}>
+                  {data.last_failed_run.run_id}
+                </Link>
+              ) : (
+                "None"
+              )}
             </p>
+            {origin.data ? (
+              <p>
+                API docs:{" "}
+                <a className="underline-offset-4 hover:underline" href={`${origin.data}/api/docs`} target="_blank" rel="noreferrer">
+                  {origin.data}/api/docs
+                </a>
+              </p>
+            ) : null}
           </section>
         </>
       ) : null}

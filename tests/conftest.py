@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -10,13 +11,22 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCKER_REPO = Path("/workspace")
-if (DOCKER_REPO / "pipeline").is_dir():
-    REPO_ROOT = DOCKER_REPO
-else:
-    REPO_ROOT = ROOT / "environment" / "repo"
 
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
+
+def _candidate_repo() -> Path:
+    override = os.environ.get("PIPEFORGE_CANDIDATE_REPO", "").strip()
+    if override:
+        return Path(override).resolve()
+    if (DOCKER_REPO / "pipeline").is_dir():
+        return DOCKER_REPO.resolve()
+    return (ROOT / "environment" / "repo").resolve()
+
+
+REPO_ROOT = _candidate_repo()
+_repo_s = str(REPO_ROOT)
+if _repo_s in sys.path:
+    sys.path.remove(_repo_s)
+sys.path.insert(0, _repo_s)
 
 TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:

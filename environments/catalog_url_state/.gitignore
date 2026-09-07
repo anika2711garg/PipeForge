@@ -1,0 +1,7 @@
+node_modules/
+workspace/
+grader/results/
+grader/scratch/
+dist/
+*.log
+.DS_Store

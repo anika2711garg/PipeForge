@@ -5,7 +5,11 @@ import { Gauge } from "lucide-react";
 import { AmountChart, EventVolumeChart, TypeBreakdownChart } from "@/components/charts/metrics-charts";
 import { EmptyState } from "@/components/feedback/empty-state";
 import { ErrorState } from "@/components/feedback/error-state";
+import { FadeIn, Reveal } from "@/components/motion/fade-in";
+import { ExportButton } from "@/components/ui/export-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { Panel } from "@/components/ui/panel";
+import { SectionHeading } from "@/components/ui/section-heading";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, THead, Th, Td } from "@/components/ui/table";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
@@ -26,15 +30,16 @@ export function MetricsPage() {
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-[var(--space-section)]">
       <PageHeader
         title="Metrics"
         description="UTC daily aggregates supplied by the warehouse. Amounts are integer minor units."
+        actions={<ExportButton kind="metrics" />}
       />
       {metrics.isPending ? (
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-64" />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Skeleton className="h-72 rounded-[1.5rem]" />
+          <Skeleton className="h-72 rounded-[1.5rem]" />
         </div>
       ) : rows.length === 0 ? (
         <EmptyState
@@ -44,45 +49,57 @@ export function MetricsPage() {
         />
       ) : (
         <>
-          <div className="grid gap-10 xl:grid-cols-2">
+          <FadeIn>
+            <div className="grid gap-6 xl:grid-cols-2">
+              <section>
+                <SectionHeading title="Events over time" description="Accepted warehouse events by UTC day." />
+                <Panel className="p-4 md:p-5">
+                  <EventVolumeChart rows={rows} />
+                </Panel>
+              </section>
+              <section>
+                <SectionHeading title="Amount over time" description="Summed minor units by UTC day." />
+                <Panel className="p-4 md:p-5">
+                  <AmountChart rows={rows} />
+                </Panel>
+              </section>
+              <section className="xl:col-span-2">
+                <SectionHeading title="By event type" description="Volume and amount across event types." />
+                <Panel className="p-4 md:p-5">
+                  <TypeBreakdownChart rows={rows} />
+                </Panel>
+              </section>
+            </div>
+          </FadeIn>
+          <Reveal>
             <section>
-              <h2 className="mb-4 text-sm font-medium">Events over time</h2>
-              <EventVolumeChart rows={rows} />
+              <SectionHeading title="Daily metrics" description="Exact warehouse aggregates for export and audit." />
+              <Panel className="overflow-hidden rounded-[1.5rem]">
+                <Table>
+                  <THead>
+                    <tr>
+                      <Th>Date (UTC)</Th>
+                      <Th>Event type</Th>
+                      <Th>Event count</Th>
+                      <Th>Total amount (exact)</Th>
+                      <Th>Minor units</Th>
+                    </tr>
+                  </THead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr key={`${row.metric_date}-${row.event_type}`} className="transition-colors duration-150 hover:bg-tint">
+                        <Td>{row.metric_date}</Td>
+                        <Td>{row.event_type}</Td>
+                        <Td className="tabular-nums">{formatInteger(row.event_count)}</Td>
+                        <Td className="tabular-nums">{formatMinorUnitsExact(row.total_amount_minor_units)}</Td>
+                        <Td className="tabular-nums">{formatInteger(row.total_amount_minor_units)}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </Panel>
             </section>
-            <section>
-              <h2 className="mb-4 text-sm font-medium">Amount over time</h2>
-              <AmountChart rows={rows} />
-            </section>
-            <section className="xl:col-span-2">
-              <h2 className="mb-4 text-sm font-medium">Events and amount by type</h2>
-              <TypeBreakdownChart rows={rows} />
-            </section>
-          </div>
-          <section className="border-t border-border pt-8">
-            <h2 className="mb-4 text-sm font-medium">Daily metrics</h2>
-            <Table>
-              <THead>
-                <tr>
-                  <Th>Date (UTC)</Th>
-                  <Th>Event type</Th>
-                  <Th>Event count</Th>
-                  <Th>Total amount (exact)</Th>
-                  <Th>Minor units</Th>
-                </tr>
-              </THead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={`${row.metric_date}-${row.event_type}`} className="hover:bg-muted/60">
-                    <Td>{row.metric_date}</Td>
-                    <Td>{row.event_type}</Td>
-                    <Td>{formatInteger(row.event_count)}</Td>
-                    <Td>{formatMinorUnitsExact(row.total_amount_minor_units)}</Td>
-                    <Td>{formatInteger(row.total_amount_minor_units)}</Td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </section>
+          </Reveal>
         </>
       )}
     </div>

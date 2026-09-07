@@ -37,7 +37,7 @@ Do not commit `.next/` or `.next-dev/`.
 
 ## Routes
 
-`/`, `/pipeline`, `/runs`, `/files`, `/metrics`, `/quarantine`, `/explorer`, `/system`, `/settings`
+`/`, `/pipeline`, `/runs`, `/runs/[runId]`, `/activity`, `/insights`, `/files`, `/metrics`, `/quarantine`, `/quarantine/[id]`, `/explorer`, `/compare`, `/system`, `/settings`, `/help`
 
 Command palette: `Ctrl+K` / `Cmd+K`.
 

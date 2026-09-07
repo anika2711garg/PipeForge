@@ -1,0 +1,32 @@
+[
+  {
+    "id": "U1",
+    "behavior": "Parse/serialize query params with trim, defaults, and encoding",
+    "tests": ["verifier/tests/helpers.test.ts"]
+  },
+  {
+    "id": "U2",
+    "behavior": "Search/filter/sort/paginate match the independent oracle",
+    "tests": ["verifier/tests/helpers.test.ts"]
+  },
+  {
+    "id": "U3",
+    "behavior": "Deep links restore visible results",
+    "tests": ["verifier/tests/url-sync.test.tsx"]
+  },
+  {
+    "id": "U4",
+    "behavior": "Controls update URL and results together; category resets page",
+    "tests": ["verifier/tests/url-sync.test.tsx"]
+  },
+  {
+    "id": "U5",
+    "behavior": "Pagination and browser history stay consistent",
+    "tests": ["verifier/tests/url-sync.test.tsx"]
+  },
+  {
+    "id": "U6",
+    "behavior": "Empty results and fixture-driven computation",
+    "tests": ["verifier/tests/url-sync.test.tsx"]
+  }
+]

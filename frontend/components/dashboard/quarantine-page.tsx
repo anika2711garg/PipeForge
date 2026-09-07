@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -12,6 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, THead, Th, Td } from "@/components/ui/table";
 import { TableToolbar } from "@/components/tables/table-toolbar";
+import { ExportButton } from "@/components/ui/export-button";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useTableState } from "@/hooks/use-table-state";
 import { inspectRawRecord } from "@/lib/format/json";
@@ -69,15 +71,16 @@ export function QuarantinePage() {
   const parsed = selected ? inspectRawRecord(selected.raw_record) : null;
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Quarantine"
         description="Rejected lines kept for inspection. Raw content is rendered as text, never as HTML."
+        actions={<ExportButton kind="quarantine" />}
       />
       {quarantine.isPending ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
+            <Skeleton key={index} className="h-12 w-full rounded-xl" />
           ))}
         </div>
       ) : (quarantine.data ?? []).length === 0 ? (
@@ -122,7 +125,7 @@ export function QuarantinePage() {
             pageCount={table.pageCount}
             onPage={table.setPage}
           />
-          <div className="rounded-lg border border-border bg-card">
+          <div className="surface overflow-hidden rounded-[1.5rem]">
             <Table>
               <THead>
                 <tr>
@@ -147,10 +150,18 @@ export function QuarantinePage() {
                   return (
                     <tr
                       key={row.id}
-                      className="cursor-pointer hover:bg-muted/60"
+                      className="cursor-pointer transition-colors duration-150 hover:bg-tint"
                       onClick={() => setSelected(row)}
                     >
-                      <Td>{row.source_file}</Td>
+                      <Td>
+                        <Link
+                          href={`/quarantine/${row.id}`}
+                          className="underline-offset-4 hover:underline"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          {row.source_file}
+                        </Link>
+                      </Td>
                       <Td>{row.line_number}</Td>
                       <Td className="max-w-[18rem] truncate">{row.error_reason}</Td>
                       <Td>{formatTimestamp(row.created_at, preferences.timeDisplay)}</Td>
@@ -183,6 +194,9 @@ export function QuarantinePage() {
             <p className="text-xs text-muted-foreground">
               {parsed.kind === "json" ? "Valid JSON (pretty-printed)." : "Malformed text (shown as-is)."}
             </p>
+            <Link href={`/quarantine/${selected.id}`} className="inline-flex text-xs text-primary underline-offset-4 hover:underline">
+              Open record page
+            </Link>
           </div>
         ) : null}
       </Drawer>

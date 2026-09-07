@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <div className="py-16">
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">404</p>
-      <h1 className="display mt-3 text-6xl">Missing</h1>
+      <h1 className="display mt-3 text-[2.25rem]">Missing</h1>
       <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">
         That route is not part of the PipeForge control center.
       </p>

@@ -54,6 +54,9 @@ export function CommandPalette({
           void client.invalidateQueries();
         },
       },
+      { id: "export-runs", label: "Export Runs CSV", run: () => router.push("/runs") },
+      { id: "compare", label: "Compare Runs", run: () => router.push("/compare") },
+      { id: "theme-toggle", label: "Toggle Light / Dark Mode", run: () => setTheme(document.documentElement.classList.contains("dark") ? "light" : "dark") },
       { id: "theme-light", label: "Switch Theme: Light", run: () => setTheme("light") },
       { id: "theme-dark", label: "Switch Theme: Dark", run: () => setTheme("dark") },
       { id: "theme-system", label: "Switch Theme: System", run: () => setTheme("system") },
@@ -68,7 +71,7 @@ export function CommandPalette({
         filtered.push({
           id: `run-${row.run_id}`,
           label: `Run ${row.run_id}`,
-          run: () => router.push("/runs"),
+          run: () => router.push(`/runs/${row.run_id}`),
         });
       }
       for (const file of results.files) {
@@ -89,7 +92,7 @@ export function CommandPalette({
         filtered.push({
           id: `q-${item.id}`,
           label: `Quarantine ${item.source_file}:${item.line_number}`,
-          run: () => router.push("/quarantine"),
+          run: () => router.push(`/quarantine/${item.id}`),
         });
       }
     }
@@ -121,12 +124,12 @@ export function CommandPalette({
 
   return (
     <div className="fixed inset-0 z-[75] flex items-start justify-center p-4 pt-[12vh]">
-      <button type="button" className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-label="Close command palette" onClick={onClose} />
+      <button type="button" className="absolute inset-0 bg-foreground/25" aria-label="Close command palette" onClick={onClose} />
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="relative w-full max-w-xl overflow-hidden border border-border bg-card shadow-pop"
+        className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-pop motion-safe:animate-rise"
         onKeyDown={(event) => {
           if (event.key === "Escape") {
             onClose();
@@ -164,8 +167,8 @@ export function CommandPalette({
                   type="button"
                   role="option"
                   aria-selected={index === active}
-                  className={`flex w-full px-3 py-2.5 text-left text-sm ${
-                    index === active ? "bg-muted" : "hover:bg-muted/70"
+                  className={`flex min-h-10 w-full rounded-xl px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
+                    index === active ? "bg-tint text-foreground" : "hover:bg-tint/70"
                   }`}
                   onMouseEnter={() => setActive(index)}
                   onClick={() => execute(index)}

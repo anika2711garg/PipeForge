@@ -47,7 +47,7 @@ export function Drawer({
     <div className="fixed inset-0 z-[60] flex justify-end">
       <button
         type="button"
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-foreground/25"
         aria-label="Close details"
         onClick={onClose}
       />

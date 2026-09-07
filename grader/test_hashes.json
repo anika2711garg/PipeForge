@@ -1,0 +1,22 @@
+{
+  "__init__.py": "08738658316ced8a8515d9bcdb6798319e8ebe406fb25cc33eaa736fd4f2a101",
+  "conftest.py": "138f9633362793c1813a45357def6f05f3a20db9679d5a46f59440e983c01c80",
+  "helpers.py": "dab5fbab94a2cfebe664c3239ccb0588bc463fb89924f089b56ed460150ff77f",
+  "test_atomicity.py": "1145166f349f98ba72ab2f40458f75738994cad11ee8eebef88f61ddd0b2b1eb",
+  "test_basic_ingestion.py": "ae486fcc472a750752584a8bb3b2fadd4b3e48b247b193aa1e74619e1391402e",
+  "test_changed_file.py": "840baae6e0fb5fd0edf5607ee3599009b2586aa77ca64d922bdec91d9f8398a6",
+  "test_cli.py": "28d2c08b730a1f0f8515b50183cdb9dc4e20dacf4ab28c8eb0f02971da31b80c",
+  "test_crash_recovery.py": "7df50fb108d8e76a6410563f38cf1d2ba78fc725f8d01cbf39439de31ee563e2",
+  "test_dashboard_api.py": "39617dbdd8c96e0de285e0159cfaf60536ac1041b27e450b963c42eed712dda2",
+  "test_duplicates.py": "8d836e64aacc6be40c16cc666826a0a8009089bb7fe6be61bb2bb171e75b3b3b",
+  "test_empty_incoming.py": "05aa622213dd48bbd6d8e402d96d5e5d551053b960326ee6d24999b7ab2fe263",
+  "test_idempotency.py": "cd013efd09a6b87382362e97d392e12d96087093c045785c861b45584f15b699",
+  "test_incremental_processing.py": "84647ca4d189f9c782f5c9263d97b2db3c433632e12f2fd9aa38e530c91cd9f9",
+  "test_late_arrivals.py": "5bc1ccfb8a9a0134674fbdcd73dcc60d04e9b830f7821147d3a3c743fda5cf1b",
+  "test_malformed_records.py": "cf91c8a0d8424366a47237b3d0265e58a4ffceaa2d2560b92b035947dc601e13",
+  "test_money_precision.py": "c8527fd9f5274150aed58b6c17c13d4b049068b8146cfce1258bc306ed28ff10",
+  "test_randomized.py": "b212072d2bb278c22c1f38b7d97bd0b082da42baab2f989e7cd9c9972502a2e5",
+  "test_regression.py": "0b766dc56850b1b7789dc66dccce829dd0b18b8867a2c9ce45fd397b668d50e3",
+  "test_schema_evolution.py": "7d97edd204c5a325072a2777ba3aa4bd05747c31cc12dc7ab91c2e46e0b35630",
+  "test_timezone_handling.py": "4d67335395648caf42b64b67eb5f6e1100e03876c96274e15c0847cae6df0196"
+}

@@ -154,6 +154,72 @@ export type DemoResetResult = {
   warehouse: string;
 };
 
+export type InsightsSnapshot = {
+  total_runs: number;
+  completed_runs: number;
+  failed_runs: number;
+  success_percent: number | null;
+  total_events: number;
+  logical_events: number;
+  duplicate_event_rows: number;
+  duplicate_percent: number | null;
+  quarantined_records: number;
+  quarantine_percent: number | null;
+  pending_files: number;
+  changed_files: number;
+  incoming_files: number;
+  latest_run: RunRow | null;
+  last_failed_run: RunRow | null;
+};
+
+export type ActivityItem = {
+  kind: "run" | "quarantine" | "file" | string;
+  id: string;
+  at: string | null;
+  title: string;
+  detail: string | null;
+  status: string | null;
+  href: string;
+};
+
+export type ActivitySnapshot = {
+  items: ActivityItem[];
+  total: number;
+};
+
+export type AlertItem = {
+  id: string;
+  severity: "error" | "warning" | "info" | string;
+  title: string;
+  detail: string;
+  href: string;
+};
+
+export type AlertsSnapshot = {
+  items: AlertItem[];
+  count: number;
+};
+
+export type FilePreviewLine = {
+  line_number: number;
+  text: string;
+};
+
+export type FilePreview = {
+  filename: string;
+  lines: FilePreviewLine[];
+};
+
+export type RunCompare = {
+  left: RunRow;
+  right: RunRow;
+  delta: {
+    files_processed: number;
+    records_accepted: number;
+    records_quarantined: number;
+  };
+};
+
 export class ApiError extends Error {
   status: number;
 

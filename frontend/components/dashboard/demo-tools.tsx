@@ -23,6 +23,9 @@ export function DemoTools() {
       client.invalidateQueries({ queryKey: queryKeys.metrics }),
       client.invalidateQueries({ queryKey: queryKeys.quarantine }),
       client.invalidateQueries({ queryKey: queryKeys.system }),
+      client.invalidateQueries({ queryKey: queryKeys.insights }),
+      client.invalidateQueries({ queryKey: queryKeys.activity }),
+      client.invalidateQueries({ queryKey: queryKeys.alerts }),
       client.invalidateQueries({ queryKey: ["events"] }),
     ]);
   }
@@ -57,22 +60,22 @@ export function DemoTools() {
   const busy = generate.isPending || reset.isPending;
 
   return (
-    <section className="glass rounded-3xl border border-border p-6">
+    <section className="overflow-hidden rounded-[1.6rem] border border-amber-300 bg-gradient-to-r from-amber-200 via-orange-200 to-rose-200 px-5 py-5 shadow-card md:px-6 dark:border-amber-500/30 dark:from-amber-950/50 dark:via-orange-950/40 dark:to-rose-950/40">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-3">
-          <span className="rounded-xl bg-primary/15 p-2 text-primary">
+          <span className="rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-2.5 text-white shadow-lg">
             <Beaker className="h-4 w-4" aria-hidden="true" />
           </span>
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Sandbox</p>
-            <h2 className="mt-1 text-lg font-medium">Demo dataset</h2>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-orange-800 dark:text-orange-200">Sandbox</p>
+            <h2 className="mt-1 text-lg font-extrabold tracking-tight text-orange-950 dark:text-orange-50">Demo dataset</h2>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-orange-900/80 dark:text-orange-100/75">
               Synthetic demonstration tools only. These actions are not part of production ingestion.
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button type="button" disabled={busy} onClick={() => generate.mutate()}>
+          <Button type="button" variant="outline" disabled={busy} onClick={() => generate.mutate()}>
             {generate.isPending ? "Generating…" : "Generate Demo Batch"}
           </Button>
           <Button type="button" variant="danger" disabled={busy} onClick={() => setConfirmOpen(true)}>

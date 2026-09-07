@@ -13,7 +13,7 @@ export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
   return (
     <thead
       className={cn(
-        "sticky top-0 z-10 bg-muted/70 text-left text-[11px] uppercase tracking-[0.12em] text-muted-foreground backdrop-blur",
+        "sticky top-0 z-10 bg-tint/80 text-left text-xs font-semibold uppercase tracking-[0.06em] text-muted-foreground backdrop-blur-sm",
         className,
       )}
       {...props}
@@ -22,9 +22,9 @@ export function THead({ className, ...props }: HTMLAttributes<HTMLTableSectionEl
 }
 
 export function Th({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={cn("border-b border-border px-3 py-2.5 font-semibold", className)} {...props} />;
+  return <th className={cn("border-b border-border px-3.5 py-3 font-semibold", className)} {...props} />;
 }
 
 export function Td({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("border-b border-border/80 px-3 py-3 align-middle", className)} {...props} />;
+  return <td className={cn("border-b border-border/80 px-3.5 py-3.5 align-middle transition-colors duration-150", className)} {...props} />;
 }

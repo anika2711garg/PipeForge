@@ -4,10 +4,10 @@ import type { HTMLAttributes } from "react";
 export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("relative overflow-hidden rounded-md bg-muted", className)}
+      className={cn("relative overflow-hidden rounded-xl bg-tint", className)}
       {...props}
     >
-      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-foreground/10 to-transparent motion-safe:animate-shimmer" />
+      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-foreground/8 to-transparent motion-safe:animate-shimmer" />
     </div>
   );
 }

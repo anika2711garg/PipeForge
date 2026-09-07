@@ -1,0 +1,4 @@
+[
+  "verifier/tests/helpers.test.ts",
+  "verifier/tests/url-sync.test.tsx"
+]

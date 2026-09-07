@@ -1,0 +1,383 @@
+{
+  "status": "FAIL",
+  "command": "python scripts/grade.py",
+  "generated_at": "2026-09-07T15:09:31.250544+00:00",
+  "repo": "E:\\Desktop\\Project_2_P\\PipeForge\\environment\\repo",
+  "tests": "E:\\Desktop\\Project_2_P\\PipeForge\\tests",
+  "repeats": 1,
+  "failed_checks": [
+    {
+      "nodeid": "tests/test_atomicity.py::test_failure_before_commit_leaves_no_partial_success",
+      "outcome": "failed",
+      "detail": "tests\\test_atomicity.py:26: in test_failure_before_commit_leaves_no_partial_success\n    assert warehouse.event_count() == 0\nE   assert 8 == 0\nE    +  where 8 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7A8ECAE90>.event_count"
+    },
+    {
+      "nodeid": "tests/test_changed_file.py::test_changed_content_keeps_filename_but_ingests_new_logical_events",
+      "outcome": "failed",
+      "detail": "tests\\test_changed_file.py:37: in test_changed_content_keeps_filename_but_ingests_new_logical_events\n    assert len(warehouse.find_events(\"evt_keep\")) == 1\nE   AssertionError: assert 2 == 1\nE    +  where 2 = len([{'id': 1, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}, {'id': 3, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}])\nE    +    where [{'id': 1, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}, {'id': 3, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}] = find_events('evt_keep')\nE    +      where find_events = <pipeline.warehouse.Warehouse object at 0x000001A7A8F25150>.find_events"
+    },
+    {
+      "nodeid": "tests/test_crash_recovery.py::test_crash_after_n_records_then_rerun_matches_clean_run",
+      "outcome": "failed",
+      "detail": "tests\\test_crash_recovery.py:46: in test_crash_after_n_records_then_rerun_matches_clean_run\n    assert warehouse.event_count() == expected[\"events\"]\nE   assert 14 == 10\nE    +  where 14 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7A8F860D0>.event_count"
+    },
+    {
+      "nodeid": "tests/test_crash_recovery.py::test_checkpoint_not_success_until_ingestion_finishes",
+      "outcome": "failed",
+      "detail": "tests\\test_crash_recovery.py:68: in test_checkpoint_not_success_until_ingestion_finishes\n    assert success == []\nE   AssertionError: assert [{'id': 1, 'f...682be8', ...}] == []\nE     \nE     Left contains one more item: {'id': 1, 'filename': 'ckpt.jsonl', 'path': 'C:\\\\Users\\\\ANIKA GARG\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-ANIKA GARG\\\\pytest...ss_un0\\\\incoming\\\\ckpt.jsonl', 'content_hash': 'd18d5353a01177975cbf8d090cb8a54042dcfd572e4601195ac78c2f84682be8', ...}\nE     Use -v to get more diff"
+    },
+    {
+      "nodeid": "tests/test_duplicates.py::test_conflicting_duplicate_keeps_original",
+      "outcome": "failed",
+      "detail": "tests\\test_duplicates.py:49: in test_conflicting_duplicate_keeps_original\n    assert len(rows) == 1\nE   AssertionError: assert 2 == 1\nE    +  where 2 = len([{'id': 1, 'event_id': 'e100', 'user_id': 'usr_orig', 'event_type': 'purchase', ...}, {'id': 2, 'event_id': 'e100', 'user_id': 'usr_orig', 'event_type': 'purchase', ...}])"
+    },
+    {
+      "nodeid": "tests/test_duplicates.py::test_duplicate_event_across_two_files",
+      "outcome": "failed",
+      "detail": "tests\\test_duplicates.py:34: in test_duplicate_event_across_two_files\n    assert warehouse.event_count() == 3\nE   assert 4 == 3\nE    +  where 4 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA5CA060>.event_count"
+    },
+    {
+      "nodeid": "tests/test_idempotency.py::test_three_runs_of_the_same_file_are_idempotent",
+      "outcome": "failed",
+      "detail": "tests\\test_idempotency.py:33: in test_three_runs_of_the_same_file_are_idempotent\n    assert warehouse.event_count() == events_after_first\nE   assert 18 == 6\nE    +  where 18 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58A930>.event_count"
+    },
+    {
+      "nodeid": "tests/test_incremental_processing.py::test_new_file_is_added_without_duplicating_old_events",
+      "outcome": "failed",
+      "detail": "tests\\test_incremental_processing.py:28: in test_new_file_is_added_without_duplicating_old_events\n    assert warehouse.event_count() == 3\nE   assert 5 == 3\nE    +  where 5 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58B050>.event_count"
+    },
+    {
+      "nodeid": "tests/test_late_arrivals.py::test_late_september_first_updates_history_without_corrupting_later_days",
+      "outcome": "failed",
+      "detail": "tests\\test_late_arrivals.py:26: in test_late_september_first_updates_history_without_corrupting_later_days\n    assert warehouse.metric_event_count(\"2026-09-03\") == 1\nE   AssertionError: assert 0 == 1\nE    +  where 0 = metric_event_count('2026-09-03')\nE    +    where metric_event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58AED0>.metric_event_count"
+    },
+    {
+      "nodeid": "tests/test_money_precision.py::test_repeated_decimal_amounts_sum_exactly",
+      "outcome": "failed",
+      "detail": "tests\\test_money_precision.py:38: in test_repeated_decimal_amounts_sum_exactly\n    assert int(micro[\"total_amount_minor_units\"]) == 100\nE   assert 99 == 100\nE    +  where 99 = int(99)"
+    },
+    {
+      "nodeid": "tests/test_randomized.py::test_randomized_dataset_matches_independent_oracle",
+      "outcome": "failed",
+      "detail": "tests\\test_randomized.py:160: in test_randomized_dataset_matches_independent_oracle\n    assert warehouse.event_count() == expected[\"accepted\"]\nE   assert 48 == 47\nE    +  where 48 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA62E3F0>.event_count"
+    },
+    {
+      "nodeid": "tests/test_regression.py::test_mixed_rerun_duplicate_timezone_and_late_data",
+      "outcome": "failed",
+      "detail": "tests\\test_regression.py:44: in test_mixed_rerun_duplicate_timezone_and_late_data\n    assert warehouse.event_count() == 4\nE   assert 12 == 4\nE    +  where 12 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA62E150>.event_count"
+    },
+    {
+      "nodeid": "tests/test_timezone_handling.py::test_naive_timestamp_is_quarantined",
+      "outcome": "failed",
+      "detail": "tests\\test_timezone_handling.py:60: in test_naive_timestamp_is_quarantined\n    assert warehouse.get_event(\"evt_naive\") is None\nE   AssertionError: assert {'id': 1, 'event_id': 'evt_naive', 'user_id': 'usr_1', 'event_type': 'purchase', ...} is None\nE    +  where {'id': 1, 'event_id': 'evt_naive', 'user_id': 'usr_1', 'event_type': 'purchase', ...} = get_event('evt_naive')\nE    +    where get_event = <pipeline.warehouse.Warehouse object at 0x000001A7AA62EDB0>.get_event"
+    },
+    {
+      "nodeid": "tests/test_timezone_handling.py::test_offset_crossing_utc_midnight_lands_on_previous_utc_date",
+      "outcome": "failed",
+      "detail": "tests\\test_timezone_handling.py:42: in test_offset_crossing_utc_midnight_lands_on_previous_utc_date\n    assert \"2026-08-04\" in ist[\"occurred_at_utc\"]\nE   AssertionError: assert '2026-08-04' in '2026-08-05T00:30:00'"
+    }
+  ],
+  "not_executed": [],
+  "runs": [
+    {
+      "index": 1,
+      "order": "collection-order",
+      "exit_code": 1,
+      "collected": 23,
+      "passed": 9,
+      "failed": 14,
+      "skipped": 0,
+      "errors": 0,
+      "checks": [
+        {
+          "nodeid": "tests/test_atomicity.py::test_failure_before_commit_leaves_no_partial_success",
+          "outcome": "failed",
+          "detail": "tests\\test_atomicity.py:26: in test_failure_before_commit_leaves_no_partial_success\n    assert warehouse.event_count() == 0\nE   assert 8 == 0\nE    +  where 8 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7A8ECAE90>.event_count"
+        },
+        {
+          "nodeid": "tests/test_basic_ingestion.py::test_basic_ingestion_loads_ten_events",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_changed_file.py::test_changed_content_keeps_filename_but_ingests_new_logical_events",
+          "outcome": "failed",
+          "detail": "tests\\test_changed_file.py:37: in test_changed_content_keeps_filename_but_ingests_new_logical_events\n    assert len(warehouse.find_events(\"evt_keep\")) == 1\nE   AssertionError: assert 2 == 1\nE    +  where 2 = len([{'id': 1, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}, {'id': 3, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}])\nE    +    where [{'id': 1, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}, {'id': 3, 'event_id': 'evt_keep', 'user_id': 'usr_1', 'event_type': 'purchase', ...}] = find_events('evt_keep')\nE    +      where find_events = <pipeline.warehouse.Warehouse object at 0x000001A7A8F25150>.find_events"
+        },
+        {
+          "nodeid": "tests/test_cli.py::test_cli_run_and_status_print_documented_fields",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_crash_recovery.py::test_crash_after_n_records_then_rerun_matches_clean_run",
+          "outcome": "failed",
+          "detail": "tests\\test_crash_recovery.py:46: in test_crash_after_n_records_then_rerun_matches_clean_run\n    assert warehouse.event_count() == expected[\"events\"]\nE   assert 14 == 10\nE    +  where 14 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7A8F860D0>.event_count"
+        },
+        {
+          "nodeid": "tests/test_crash_recovery.py::test_checkpoint_not_success_until_ingestion_finishes",
+          "outcome": "failed",
+          "detail": "tests\\test_crash_recovery.py:68: in test_checkpoint_not_success_until_ingestion_finishes\n    assert success == []\nE   AssertionError: assert [{'id': 1, 'f...682be8', ...}] == []\nE     \nE     Left contains one more item: {'id': 1, 'filename': 'ckpt.jsonl', 'path': 'C:\\\\Users\\\\ANIKA GARG\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-ANIKA GARG\\\\pytest...ss_un0\\\\incoming\\\\ckpt.jsonl', 'content_hash': 'd18d5353a01177975cbf8d090cb8a54042dcfd572e4601195ac78c2f84682be8', ...}\nE     Use -v to get more diff"
+        },
+        {
+          "nodeid": "tests/test_dashboard_api.py::test_dashboard_health_status_and_run_use_pipeline",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_duplicates.py::test_conflicting_duplicate_keeps_original",
+          "outcome": "failed",
+          "detail": "tests\\test_duplicates.py:49: in test_conflicting_duplicate_keeps_original\n    assert len(rows) == 1\nE   AssertionError: assert 2 == 1\nE    +  where 2 = len([{'id': 1, 'event_id': 'e100', 'user_id': 'usr_orig', 'event_type': 'purchase', ...}, {'id': 2, 'event_id': 'e100', 'user_id': 'usr_orig', 'event_type': 'purchase', ...}])"
+        },
+        {
+          "nodeid": "tests/test_duplicates.py::test_duplicate_event_across_two_files",
+          "outcome": "failed",
+          "detail": "tests\\test_duplicates.py:34: in test_duplicate_event_across_two_files\n    assert warehouse.event_count() == 3\nE   assert 4 == 3\nE    +  where 4 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA5CA060>.event_count"
+        },
+        {
+          "nodeid": "tests/test_duplicates.py::test_identical_duplicate_inside_one_file",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_empty_incoming.py::test_empty_incoming_directory_completes_with_zero_events",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_idempotency.py::test_three_runs_of_the_same_file_are_idempotent",
+          "outcome": "failed",
+          "detail": "tests\\test_idempotency.py:33: in test_three_runs_of_the_same_file_are_idempotent\n    assert warehouse.event_count() == events_after_first\nE   assert 18 == 6\nE    +  where 18 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58A930>.event_count"
+        },
+        {
+          "nodeid": "tests/test_incremental_processing.py::test_new_file_is_added_without_duplicating_old_events",
+          "outcome": "failed",
+          "detail": "tests\\test_incremental_processing.py:28: in test_new_file_is_added_without_duplicating_old_events\n    assert warehouse.event_count() == 3\nE   assert 5 == 3\nE    +  where 5 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58B050>.event_count"
+        },
+        {
+          "nodeid": "tests/test_incremental_processing.py::test_preexisting_warehouse_row_is_not_wiped",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_late_arrivals.py::test_late_september_first_updates_history_without_corrupting_later_days",
+          "outcome": "failed",
+          "detail": "tests\\test_late_arrivals.py:26: in test_late_september_first_updates_history_without_corrupting_later_days\n    assert warehouse.metric_event_count(\"2026-09-03\") == 1\nE   AssertionError: assert 0 == 1\nE    +  where 0 = metric_event_count('2026-09-03')\nE    +    where metric_event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA58AED0>.metric_event_count"
+        },
+        {
+          "nodeid": "tests/test_malformed_records.py::test_broken_json_line_is_quarantined_and_valid_rows_survive",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_malformed_records.py::test_missing_event_id_is_quarantined",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_money_precision.py::test_repeated_decimal_amounts_sum_exactly",
+          "outcome": "failed",
+          "detail": "tests\\test_money_precision.py:38: in test_repeated_decimal_amounts_sum_exactly\n    assert int(micro[\"total_amount_minor_units\"]) == 100\nE   assert 99 == 100\nE    +  where 99 = int(99)"
+        },
+        {
+          "nodeid": "tests/test_randomized.py::test_randomized_dataset_matches_independent_oracle",
+          "outcome": "failed",
+          "detail": "tests\\test_randomized.py:160: in test_randomized_dataset_matches_independent_oracle\n    assert warehouse.event_count() == expected[\"accepted\"]\nE   assert 48 == 47\nE    +  where 48 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA62E3F0>.event_count"
+        },
+        {
+          "nodeid": "tests/test_regression.py::test_mixed_rerun_duplicate_timezone_and_late_data",
+          "outcome": "failed",
+          "detail": "tests\\test_regression.py:44: in test_mixed_rerun_duplicate_timezone_and_late_data\n    assert warehouse.event_count() == 4\nE   assert 12 == 4\nE    +  where 12 = event_count()\nE    +    where event_count = <pipeline.warehouse.Warehouse object at 0x000001A7AA62E150>.event_count"
+        },
+        {
+          "nodeid": "tests/test_schema_evolution.py::test_extra_fields_are_tolerated",
+          "outcome": "passed",
+          "detail": ""
+        },
+        {
+          "nodeid": "tests/test_timezone_handling.py::test_naive_timestamp_is_quarantined",
+          "outcome": "failed",
+          "detail": "tests\\test_timezone_handling.py:60: in test_naive_timestamp_is_quarantined\n    assert warehouse.get_event(\"evt_naive\") is None\nE   AssertionError: assert {'id': 1, 'event_id': 'evt_naive', 'user_id': 'usr_1', 'event_type': 'purchase', ...} is None\nE    +  where {'id': 1, 'event_id': 'evt_naive', 'user_id': 'usr_1', 'event_type': 'purchase', ...} = get_event('evt_naive')\nE    +    where get_event = <pipeline.warehouse.Warehouse object at 0x000001A7AA62EDB0>.get_event"
+        },
+        {
+          "nodeid": "tests/test_timezone_handling.py::test_offset_crossing_utc_midnight_lands_on_previous_utc_date",
+          "outcome": "failed",
+          "detail": "tests\\test_timezone_handling.py:42: in test_offset_crossing_utc_midnight_lands_on_previous_utc_date\n    assert \"2026-08-04\" in ist[\"occurred_at_utc\"]\nE   AssertionError: assert '2026-08-04' in '2026-08-05T00:30:00'"
+        }
+      ]
+    }
+  ],
+  "canary_present": true,
+  "candidate_contains_canary": false,
+  "pipeline_loaded_from": "E:\\Desktop\\Project_2_P\\PipeForge\\environment\\repo\\pipeline\\__init__.py",
+  "deterministic": true,
+  "test_hashes_ok": true,
+  "assumptions": [
+    "Harbor/Docker grades only Python ETL via pytest -q /grader/tests. Node/Next.js is not scored.",
+    "Frontend visual quality is subjective and is not a mandatory automated requirement.",
+    "Quarantine reason text may vary; tests only require conflict/duplicate wording where specified.",
+    "CLI wording may vary as long as documented field labels are present."
+  ],
+  "optional_or_human": [
+    {
+      "id": "H1",
+      "behavior": "Control-center aesthetics, typography, and animation taste.",
+      "verification": "Human visual review only. Automated tests cannot prove design quality."
+    }
+  ],
+  "requirement_mapping": [
+    {
+      "id": "R1",
+      "behavior": "Rerunning unchanged input is idempotent.",
+      "tests": [
+        "tests/test_idempotency.py::test_three_runs_of_the_same_file_are_idempotent",
+        "tests/test_empty_incoming.py::test_empty_incoming_directory_completes_with_zero_events",
+        "tests/test_randomized.py::test_randomized_dataset_matches_independent_oracle"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R2",
+      "behavior": "Duplicate events are handled globally across files; one logical row per event_id.",
+      "tests": [
+        "tests/test_duplicates.py::test_identical_duplicate_inside_one_file",
+        "tests/test_duplicates.py::test_duplicate_event_across_two_files"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R3",
+      "behavior": "Conflicting reuse of an event_id does not overwrite the original row; the conflict is quarantined.",
+      "tests": [
+        "tests/test_duplicates.py::test_conflicting_duplicate_keeps_original",
+        "tests/test_regression.py::test_mixed_rerun_duplicate_timezone_and_late_data"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R4",
+      "behavior": "Malformed records are quarantined; valid siblings still load.",
+      "tests": [
+        "tests/test_malformed_records.py::test_broken_json_line_is_quarantined_and_valid_rows_survive",
+        "tests/test_malformed_records.py::test_missing_event_id_is_quarantined"
+      ],
+      "mandatory": true,
+      "result": "PASS"
+    },
+    {
+      "id": "R5",
+      "behavior": "Monetary values are aggregated as exact integer minor units.",
+      "tests": [
+        "tests/test_money_precision.py::test_repeated_decimal_amounts_sum_exactly"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R6",
+      "behavior": "Timezone-aware timestamps normalize to UTC; naive timestamps are quarantined.",
+      "tests": [
+        "tests/test_timezone_handling.py::test_offset_crossing_utc_midnight_lands_on_previous_utc_date",
+        "tests/test_timezone_handling.py::test_naive_timestamp_is_quarantined"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R7",
+      "behavior": "Additive unknown schema fields do not reject a valid event.",
+      "tests": [
+        "tests/test_schema_evolution.py::test_extra_fields_are_tolerated"
+      ],
+      "mandatory": true,
+      "result": "PASS"
+    },
+    {
+      "id": "R8",
+      "behavior": "Late-arriving records update historical UTC metrics without changing later days.",
+      "tests": [
+        "tests/test_late_arrivals.py::test_late_september_first_updates_history_without_corrupting_later_days"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R9",
+      "behavior": "Interrupted ingestion recovers to the same warehouse as a clean run.",
+      "tests": [
+        "tests/test_crash_recovery.py::test_crash_after_n_records_then_rerun_matches_clean_run",
+        "tests/test_crash_recovery.py::test_checkpoint_not_success_until_ingestion_finishes"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R10",
+      "behavior": "A file is not recorded as successfully processed until ingestion finishes safely.",
+      "tests": [
+        "tests/test_atomicity.py::test_failure_before_commit_leaves_no_partial_success",
+        "tests/test_crash_recovery.py::test_checkpoint_not_success_until_ingestion_finishes"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R11",
+      "behavior": "New files ingest incrementally; pre-existing warehouse rows are not wiped.",
+      "tests": [
+        "tests/test_incremental_processing.py::test_new_file_is_added_without_duplicating_old_events",
+        "tests/test_incremental_processing.py::test_preexisting_warehouse_row_is_not_wiped"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R12",
+      "behavior": "Same filename with changed bytes is new input; event_id rules still apply.",
+      "tests": [
+        "tests/test_changed_file.py::test_changed_content_keeps_filename_but_ingests_new_logical_events"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    },
+    {
+      "id": "R13",
+      "behavior": "CLI remains functional and prints documented run/status fields.",
+      "tests": [
+        "tests/test_cli.py::test_cli_run_and_status_print_documented_fields"
+      ],
+      "mandatory": true,
+      "result": "PASS"
+    },
+    {
+      "id": "R14",
+      "behavior": "Dashboard remains functional and run/status/health use the pipeline.",
+      "tests": [
+        "tests/test_dashboard_api.py::test_dashboard_health_status_and_run_use_pipeline"
+      ],
+      "mandatory": true,
+      "result": "PASS"
+    },
+    {
+      "id": "R15",
+      "behavior": "Happy-path ingestion of a valid file loads events, metrics, and a completed run.",
+      "tests": [
+        "tests/test_basic_ingestion.py::test_basic_ingestion_loads_ten_events"
+      ],
+      "mandatory": true,
+      "result": "PASS"
+    },
+    {
+      "id": "R16",
+      "behavior": "Independent oracle on a seeded multi-file dataset including extras, duplicates, and late rows.",
+      "tests": [
+        "tests/test_randomized.py::test_randomized_dataset_matches_independent_oracle"
+      ],
+      "mandatory": true,
+      "result": "FAIL"
+    }
+  ]
+}

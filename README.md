@@ -1,201 +1,89 @@
 # PipeForge
 
-Crash-safe incremental ETL with a Next.js control center.
+Coding-agent evaluation with **two** environments. Env1 is primary; Env2 is additional and tests a different capability.
 
-PipeForge reads JSONL product and activity events, loads them into a local SQLite warehouse, and exposes a Python CLI plus a FastAPI API. The control center at `frontend/` is a typed UI over that API.
+| Env | Task | Capability | Observed grade |
+| --- | --- | --- | --- |
+| **1** | Repair incremental JSONL→SQLite ETL | Backend pipeline correctness | Starter FAIL (9/23); reference PASS 23/23 ×3 |
+| **2** | URL-sync product catalog | Frontend URL/query state | Starter FAIL; reference PASS 12/12 ×3 |
 
-```text
-Next.js  (http://localhost:3000)
-    │  REST
-    ▼
-FastAPI  (http://127.0.0.1:8000 by default)
-    │
-    ▼
-Python ETL  →  SQLite warehouse
-```
+### 1. What did you build?
 
-## Quick start
+**Env1:** PipeForge — flawed Python ETL (CLI + FastAPI) with a Next.js control center. The agent must fix idempotency, duplicates/conflicts, quarantine, exact money, timezones, late metrics, and crash recovery without editing the external verifier (`task/instruction.md`, `environment/repo/`, `solution/reference.patch`, `tests/`).
 
-Use two terminals.
+**Env2:** Standalone Vite/React catalog at `environments/catalog_url_state/`. The agent must keep search, filter, sort, and pagination synchronized with the URL (deep link, reload, back/forward). Not a rename or restyle of Env1.
 
-**1. API**
+### 2. What capability does it test?
+
+- **Env1:** Crash-safe incremental data ingestion and warehouse invariants.
+- **Env2:** URL-as-source-of-truth list controls and history behavior.
+
+### 3. Why is this useful for evaluating a coding agent?
+
+Each task is a realistic, bounded bugfix with a broken starter and objective checks. Happy-path memorization fails (Env1 multi-file/oracle fixtures; Env2 independent oracle + UI interactions). Passing requires correct side effects (SQLite or URL+DOM), not printed “success.” The two envs score different skills: backend reliability vs frontend navigation state.
+
+### 4. How do we run the environment?
+
+Prerequisites: Python 3.11+, Node 20+, npm, git.
+
+**Env1** (repo root = `PipeForge/`):
 
 ```bash
 cd environment/repo
 python -m pip install -r requirements.txt
 python -m pipeline.dashboard
+# optional UI: cd ../../frontend && npm install && copy .env.example .env.local && npm run dev
+python ../../scripts/reset_environment.py   # clears warehouse/demo files only
 ```
 
-The API listens on [http://127.0.0.1:8000](http://127.0.0.1:8000). If that port is already in use, start it on another port:
+**Env2:**
 
 ```bash
-python -m uvicorn pipeline.dashboard:app --host 127.0.0.1 --port 8001
-```
-
-**2. Control center**
-
-```bash
-cd frontend
+cd environments/catalog_url_state
 npm install
-copy .env.example .env.local
-npm run dev
+npm run init:starter
+npm run dev          # http://127.0.0.1:5173
+npm run reset        # deletes workspace/ only
 ```
 
-On macOS/Linux use `cp .env.example .env.local`.
+### 5. How do we run the reference solution?
 
-Open **[http://localhost:3000](http://localhost:3000)** — that is the app.
-
-Point the frontend at the API you started:
+**Env1** (preferred — does not patch the live tree):
 
 ```bash
-# frontend/.env.local
-NEXT_PUBLIC_PIPEFORGE_API_URL=http://127.0.0.1:8000
+python scripts/grade_isolated_reference.py --repeats 3
 ```
 
-Use `8001` (or `8002`) in that file if you started FastAPI on that port. Do not put secrets in `NEXT_PUBLIC_*` variables.
+Applies `solution/reference.patch` in `grader/scratch/` after restoring starter ETL from git `697007e`.
 
-The UI also probes `8002`, `8001`, and `8000` and uses the first origin that answers `GET /api/health`.
+Optional (mutates `environment/repo`): `python scripts/apply_reference_solution.py`
 
-## What you can do in the UI
-
-| Route | Purpose |
-| --- | --- |
-| `/` | Overview and run control |
-| `/pipeline` | Incremental ingest path |
-| `/runs` | Run history |
-| `/files` | Incoming JSONL files |
-| `/metrics` | UTC daily aggregates |
-| `/quarantine` | Rejected lines |
-| `/explorer` | Read-only warehouse events |
-| `/system` | Health and inventory |
-| `/settings` | Theme and display preferences |
-
-`Ctrl+K` / `Cmd+K` opens the command palette. Light, dark, and system themes persist in `localStorage` (`pipeforge.theme`).
-
-Demo buttons generate or reset synthetic JSONL only. They are not production ingest.
-
-## CLI
+**Env2:**
 
 ```bash
-cd environment/repo
-python scripts/generate_demo_data.py
-python -m pipeline run
-python -m pipeline status
+cd environments/catalog_url_state
+npm run apply:reference
+npm run grade
 ```
 
-Reset the local warehouse and rewrite a demo batch:
+### 6. How does the verifier work?
 
-```bash
-python scripts/reset_demo.py
-```
+**Env1:** `python scripts/grade.py` — fail-closed pytest on mandatory nodeids. Exit `0` PASS / `1` FAIL / `2` ERROR. Asserts warehouse/CLI/dashboard behavior, not summaries. Writes `grader_report.md` and `grader/results/latest.json`. Candidate may change `environment/repo` only.
 
-## Incoming data
+**Env2:** `npm run grade` — Vitest + Testing Library against `workspace/`, plus an independent oracle. Same exit codes; writes Env2 `grader_report.md` and `grader/results/latest.json`. Verifier hashes block in-tree test edits. UI aesthetics are not scored.
 
-Drop JSON Lines files in `environment/repo/data/incoming/`. Each line is one event:
+### 7. What edge cases are covered?
 
-```json
-{
-  "event_id": "evt_1001",
-  "user_id": "usr_83",
-  "event_type": "purchase",
-  "amount": "19.99",
-  "currency": "USD",
-  "occurred_at": "2026-08-12T21:42:13+05:30",
-  "source": "mobile"
-}
-```
+**Env1:** idempotent reruns; cross-file duplicates; conflicting `event_id`; quarantine; exact minor units; offset/naive timestamps; schema extras; late metrics; crash/checkpoint atomicity; changed file content; CLI/dashboard; seeded oracle. Detail: `grader/requirements_map.json`.
 
-Required: `event_id`, `user_id`, `event_type`, `occurred_at`, `source`.  
-`amount` and `currency` are optional. Unknown fields are ignored. `occurred_at` must be timezone-aware ISO-8601. Money is stored as integer minor units.
+**Env2:** trim + case-insensitive search; URL encoding; invalid sort/order/page; unknown category → empty; sort ties by `id`; page clamp; filter resets page; deep link; back/forward; empty results. Detail: `environments/catalog_url_state/verifier/requirements_map.json`.
 
-## API
+### 8. What grader exploits did you test?
 
-Thin wrappers over the same pipeline functions the CLI uses:
+**Env1** (executed): hardcoded outputs, input ignoring, missing side effects, skip/discovery/`PYTEST_ADDOPTS` tampering, spoofed PASS JSON, canary scan, money regression, valid rename variant, isolation fix — [`grader_attacks.md`](grader_attacks.md).
 
-- `GET /api/health`
-- `GET /api/status`
-- `GET /api/system`
-- `GET /api/runs` and `GET /api/runs/{run_id}`
-- `GET /api/files`
-- `GET /api/metrics`
-- `GET /api/quarantine` and `GET /api/quarantine/{id}`
-- `GET /api/events`, `GET /api/events/facets`, `GET /api/search?q=`
-- `POST /api/run`
-- `POST /api/demo/generate`
-- `POST /api/demo/reset`
+**Env2** (executed): static UI hardcoding, fixture swap, verifier skip/hash, spoofed JSON, equivalent serialization — [`environments/catalog_url_state/grader_attacks.md`](environments/catalog_url_state/grader_attacks.md).
 
-CORS allows `localhost:3000` by default. Extra origins: `PIPEFORGE_CORS_ORIGINS`.
+### 9. What happened when you ran an AI coding agent?
 
-Warehouse paths: `PIPEFORGE_DB_PATH`, `PIPEFORGE_INCOMING_DIR`, `PIPEFORGE_QUARANTINE_DIR`.
-
-## Frontend checks
-
-```bash
-cd frontend
-npm run lint
-npm run typecheck
-npm test
-npm run build
-```
-
-Do not commit `.next/` or `.next-dev/`. Those folders are Next.js caches, not source.
-
-## Tests (pipeline verifier)
-
-From the repository root, with `PYTHONPATH=environment/repo`:
-
-```bash
-python -m pip install -r environment/repo/requirements.txt
-python -m pytest -q tests
-```
-
-The starting tree is a coding-evaluation environment. Some reliability tests fail until the incremental ETL bugs are repaired. After the reference patch, the same suite should pass.
-
-```bash
-python scripts/verify_starting_state.py
-python scripts/apply_reference_solution.py
-python scripts/verify_reference_solution.py
-python scripts/reset_environment.py
-```
-
-## Docker
-
-```bash
-docker build -f environment/Dockerfile -t pipeforge .
-docker run --rm pipeforge python -m pipeline status
-docker run --rm -p 8000:8000 pipeforge python -m pipeline.dashboard
-docker run --rm pipeforge pytest -q /grader/tests
-```
-
-Grading uses the Python verifier only. Node is not required to score ETL correctness.
-
-## Layout
-
-```text
-task/                 Agent instruction
-environment/repo/     Python ETL, CLI, FastAPI
-environment/Dockerfile
-frontend/             Next.js control center
-tests/                Behavioral verifier
-solution/             Reference patch
-scripts/              Apply / reset / verify helpers
-```
-
-See `frontend/README.md` for frontend-only detail and `environment/repo/README.md` for warehouse rules.
-
-## Troubleshooting
-
-**The page looks unstyled**  
-Hard-refresh [http://localhost:3000](http://localhost:3000) (`Ctrl+Shift+R`). Confirm `npm run dev` is running in `frontend/`.
-
-**“API unavailable”**  
-Start FastAPI first, then confirm `NEXT_PUBLIC_PIPEFORGE_API_URL` matches that port.
-
-**Port 8000 is another app**  
-Start PipeForge on `8001` or `8002` and set `.env.local` to that origin.
-
-**Run stays Failed**  
-Generate a demo batch, then run the pipeline again. Invalid lines should quarantine; the run should complete.
-
-**Do not open `.next-dev/trace`**  
-That file is a Next.js performance log, not an application error.
+**NOT RUN** (both environments). No clean starter workspace that hides `tests/`, `grader/`, and `solution/` was available; fabricating a trial is not allowed. See [`agent_eval.md`](agent_eval.md) and [`environments/catalog_url_state/agent_eval.md`](environments/catalog_url_state/agent_eval.md).

@@ -375,6 +375,7 @@ class Warehouse:
         offset: int = 0,
         sort: str = "id",
         order: str = "desc",
+        max_limit: int = 200,
     ) -> tuple[list[dict[str, Any]], int]:
         allowed_sort = {
             "id",
@@ -390,7 +391,8 @@ class Warehouse:
         }
         sort_column = sort if sort in allowed_sort else "id"
         direction = "DESC" if str(order).lower() == "desc" else "ASC"
-        safe_limit = max(1, min(int(limit), 200))
+        cap = max(1, min(int(max_limit), 5000))
+        safe_limit = max(1, min(int(limit), cap))
         safe_offset = max(0, int(offset))
 
         clauses: list[str] = []

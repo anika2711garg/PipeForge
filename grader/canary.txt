@@ -1,0 +1,2 @@
+PIPEFORGE_GRADER_CANARY_7f3c91e2
+This file is grader-owned. Candidate pipeline code must not read or copy it.

@@ -11,8 +11,8 @@ export function ApiBanner() {
   const health = useQuery({
     queryKey: queryKeys.health,
     queryFn: fetchHealth,
-    retry: 0,
-    refetchInterval: 12_000,
+    retry: 1,
+    refetchInterval: 8_000,
   });
 
   if (!health.isError) {
@@ -20,14 +20,14 @@ export function ApiBanner() {
   }
 
   return (
-    <div className="border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p>
-          PipeForge API is currently unavailable. The control center cannot load warehouse data from{" "}
-          <span className="font-medium">{getApiBaseUrl()}</span>.
+    <div className="border-b border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm">
+      <div className="mx-auto flex max-w-[var(--page-max)] flex-wrap items-center justify-between gap-3">
+        <p className="text-destructive">
+          PipeForge API is currently unavailable at{" "}
+          <span className="font-semibold">{getApiBaseUrl()}</span>. Start FastAPI on port 8002, then retry.
         </p>
-        <Button type="button" size="sm" onClick={() => void health.refetch()}>
-          Retry
+        <Button type="button" size="sm" variant="outline" onClick={() => void health.refetch()}>
+          Retry connection
         </Button>
       </div>
     </div>

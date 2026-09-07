@@ -2,8 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 
+import { fetchActivity } from "@/lib/api/activity";
+import { fetchAlerts } from "@/lib/api/alerts";
 import { fetchFiles } from "@/lib/api/files";
 import { fetchHealth } from "@/lib/api/health";
+import { fetchInsights } from "@/lib/api/insights";
 import { fetchMetrics } from "@/lib/api/metrics";
 import { fetchQuarantine } from "@/lib/api/quarantine";
 import { fetchRuns } from "@/lib/api/runs";
@@ -33,6 +36,21 @@ export function useDashboardData() {
     queryFn: fetchQuarantine,
     refetchInterval,
   });
+  const insights = useQuery({
+    queryKey: queryKeys.insights,
+    queryFn: fetchInsights,
+    refetchInterval,
+  });
+  const activity = useQuery({
+    queryKey: queryKeys.activity,
+    queryFn: () => fetchActivity(12),
+    refetchInterval,
+  });
+  const alerts = useQuery({
+    queryKey: queryKeys.alerts,
+    queryFn: fetchAlerts,
+    refetchInterval,
+  });
 
-  return { status, health, runs, files, metrics, quarantine };
+  return { status, health, runs, files, metrics, quarantine, insights, activity, alerts };
 }

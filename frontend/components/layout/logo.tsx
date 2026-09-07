@@ -2,28 +2,49 @@ import { cn } from "@/lib/utils/cn";
 
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <span className={cn("relative inline-flex h-8 w-8", className)}>
-      <span className="absolute inset-0 rounded-xl bg-primary/30 motion-safe:animate-pulse-soft" aria-hidden="true" />
-      <svg viewBox="0 0 32 32" className="relative h-8 w-8 shrink-0" aria-hidden="true">
-        <rect width="32" height="32" rx="9" className="fill-primary" />
-        <path
-          d="M8 22V10h3.8l4.2 7.1V10H20v12h-3.7L12.2 14.8V22H8z"
-          className="fill-primary-foreground"
-        />
-      </svg>
-    </span>
+    <svg viewBox="0 0 32 32" className={cn("h-8 w-8 shrink-0 drop-shadow-[0_6px_14px_rgba(48,92,222,0.45)]", className)} aria-hidden="true">
+      <defs>
+        <linearGradient id="pf-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#5B86F5" />
+          <stop offset="100%" stopColor="#305CDE" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="10" fill="url(#pf-mark)" />
+      <path
+        d="M8.5 22.5V9.5h3.2l5.1 9.4V9.5H20v13h-3.2l-5.1-9.4v9.4H8.5z"
+        fill="white"
+      />
+    </svg>
   );
 }
 
-export function Logo({ collapsed }: { collapsed?: boolean }) {
+export function Logo({
+  collapsed,
+  inverse = false,
+}: {
+  collapsed?: boolean;
+  inverse?: boolean;
+}) {
   return (
     <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
       <LogoMark />
       {!collapsed ? (
-        <div className="min-w-0 leading-none">
-          <p className="font-display text-[1.4rem] text-sidebar-foreground">PipeForge</p>
+        <div className="min-w-0">
+          <p
+            className={cn(
+              "truncate text-[1.08rem] font-bold tracking-tight",
+              inverse ? "text-sidebar-foreground" : "text-foreground",
+            )}
+          >
+            PipeForge
+          </p>
+          <p className={cn("mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]", inverse ? "text-sky-200/70" : "text-primary")}>
+            Control center
+          </p>
         </div>
-      ) : null}
+      ) : (
+        <span className="sr-only">PipeForge</span>
+      )}
     </div>
   );
 }

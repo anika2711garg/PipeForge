@@ -1,6 +1,7 @@
 "use client";
 
 import { Activity } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/feedback/empty-state";
@@ -14,6 +15,8 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { Table, THead, Th, Td } from "@/components/ui/table";
 import { TableToolbar } from "@/components/tables/table-toolbar";
 import { RunPipelineButton } from "@/components/pipeline/run-pipeline-button";
+import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/ui/export-button";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useTableState } from "@/hooks/use-table-state";
 import { formatDuration, formatRelative, formatTimestamp } from "@/lib/format/dates";
@@ -54,16 +57,26 @@ export function RunsPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Runs"
         description="Historical pipeline executions recorded in the warehouse."
-        actions={<RunPipelineButton />}
+        actions={
+          <>
+            <ExportButton kind="runs" />
+            <Link href="/compare">
+              <Button type="button" size="sm" variant="outline">
+                Compare
+              </Button>
+            </Link>
+            <RunPipelineButton />
+          </>
+        }
       />
       {runs.isPending ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
+            <Skeleton key={index} className="h-12 w-full rounded-xl" />
           ))}
         </div>
       ) : (runs.data ?? []).length === 0 ? (
@@ -96,7 +109,7 @@ export function RunsPage() {
             pageCount={table.pageCount}
             onPage={table.setPage}
           />
-          <div className="rounded-lg border border-border bg-card">
+          <div className="surface overflow-hidden rounded-[1.5rem]">
             <Table>
               <THead>
                 <tr>
@@ -127,10 +140,18 @@ export function RunsPage() {
                 {table.pageRows.map((row) => (
                   <tr
                     key={row.run_id}
-                    className="cursor-pointer hover:bg-muted/60"
+                    className="cursor-pointer transition-colors duration-150 hover:bg-tint"
                     onClick={() => setSelected(row)}
                   >
-                    <Td className="font-mono text-xs">{row.run_id}</Td>
+                    <Td className="font-mono text-xs">
+                      <Link
+                        href={`/runs/${row.run_id}`}
+                        className="underline-offset-4 hover:underline"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {row.run_id}
+                      </Link>
+                    </Td>
                     <Td title={formatTimestamp(row.started_at, preferences.timeDisplay)}>
                       {formatRelative(row.started_at)}
                     </Td>
@@ -169,6 +190,9 @@ export function RunsPage() {
             ) : (
               <p className="text-muted-foreground">No error recorded for this run.</p>
             )}
+            <Link href={`/runs/${selected.run_id}`} className="inline-flex text-xs text-primary underline-offset-4 hover:underline">
+              Open run page
+            </Link>
           </div>
         ) : null}
       </Drawer>

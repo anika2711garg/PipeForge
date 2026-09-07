@@ -68,7 +68,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
                 className={cn(
-                  "pointer-events-auto rounded-lg border bg-card p-3 shadow-pop",
+                  "pointer-events-auto rounded-2xl border bg-card p-3.5 shadow-pop",
                   toast.kind === "success" && "border-success/30",
                   toast.kind === "error" && "border-destructive/30",
                   toast.kind === "warning" && "border-warning/30",

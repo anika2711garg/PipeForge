@@ -5,10 +5,17 @@ export const queryKeys = {
   runs: ["runs"] as const,
   run: (id: string) => ["runs", id] as const,
   files: ["files"] as const,
+  filePreview: (name: string) => ["file-preview", name] as const,
   metrics: ["metrics"] as const,
   quarantine: ["quarantine"] as const,
+  quarantineRecord: (id: number) => ["quarantine", id] as const,
   events: (params: Record<string, string | number | undefined>) =>
     ["events", params] as const,
   eventFacets: ["event-facets"] as const,
   search: (q: string) => ["search", q] as const,
+  insights: ["insights"] as const,
+  activity: ["activity"] as const,
+  alerts: ["alerts"] as const,
+  compare: (left: string, right: string) => ["compare", left, right] as const,
+  apiOrigin: ["api-origin"] as const,
 };

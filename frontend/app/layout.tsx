@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, IBM_Plex_Mono, Instrument_Serif } from "next/font/google";
+import { IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -7,15 +7,15 @@ import { AppProviders } from "@/providers/app-providers";
 
 import "./globals.css";
 
-const sans = DM_Sans({
+const sans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const display = Instrument_Serif({
+const display = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: "400",
+  weight: ["600", "700"],
   variable: "--font-display",
   display: "swap",
 });
@@ -37,7 +37,7 @@ const themeBootScript = `
   try {
     var key = 'pipeforge.theme';
     var stored = localStorage.getItem(key);
-    var theme = stored || 'dark';
+    var theme = stored || 'light';
     var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (theme === 'light') dark = false;
     document.documentElement.classList.toggle('dark', dark);
@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body className={`${sans.className} min-h-screen bg-background font-sans antialiased`}>
+      <body className={`${sans.className} min-h-screen font-sans antialiased`}>
         <AppProviders>
           <AppShell>{children}</AppShell>
         </AppProviders>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ModeSwitch } from "@/components/ui/mode-switch";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PageHeader } from "@/components/ui/page-header";
 import { Select } from "@/components/ui/select";
@@ -14,13 +15,14 @@ export function SettingsPage() {
         title="Settings"
         description="Frontend-only preferences. These do not change pipeline correctness or warehouse behavior."
       />
-      <section className="glass grid gap-10 rounded-3xl border border-border p-6 md:grid-cols-3">
+      <section className="grid gap-10 border-t border-border pt-8 md:grid-cols-3">
         <div>
           <h2 className="text-sm font-medium">Appearance</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Light, dark, or follow the operating system. Preference is stored locally.
+            Toggle light and dark immediately, or pin the theme to the system.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col items-start gap-3">
+            <ModeSwitch />
             <ThemeToggle />
           </div>
         </div>
@@ -62,6 +64,7 @@ export function SettingsPage() {
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
+                className="h-4 w-4 accent-[hsl(var(--primary))]"
                 checked={preferences.autoRefresh}
                 onChange={(event) => update({ autoRefresh: event.target.checked })}
               />

@@ -30,17 +30,21 @@ export function getApiBaseUrl(): string {
 
 async function looksLikePipeForge(base: string): Promise<boolean> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 2500);
+  const timer = setTimeout(() => controller.abort(), 3500);
   try {
     const response = await fetch(`${base}/api/health`, {
       signal: controller.signal,
       headers: { Accept: "application/json" },
+      cache: "no-store",
     });
     if (!response.ok) {
       return false;
     }
-    const payload = (await response.json().catch(() => null)) as { api?: string } | null;
-    return Boolean(payload && typeof payload.api === "string");
+    const payload = (await response.json().catch(() => null)) as { api?: string; status?: string } | null;
+    return Boolean(
+      payload &&
+        (typeof payload.api === "string" || payload.status === "healthy" || payload.status === "degraded"),
+    );
   } catch {
     return false;
   } finally {
@@ -106,6 +110,49 @@ export async function apiRequest<T>(path: string, options?: RequestInit): Promis
     }
 
     return payload as T;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw error;
+    }
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new ApiError("Request timed out", 408);
+    }
+    resolvedBaseUrl = null;
+    throw new ApiError(
+      error instanceof Error ? error.message : "PipeForge API is currently unavailable.",
+      0,
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export function resolveApiOrigin(): Promise<string> {
+  return resolveApiBaseUrl();
+}
+
+export async function apiDownload(path: string, filename: string): Promise<void> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(joinUrl(base, path), {
+      signal: controller.signal,
+      headers: { Accept: "text/csv" },
+    });
+    if (!response.ok) {
+      const payload = (await response.json().catch(() => ({}))) as { detail?: string };
+      throw new ApiError(payload.detail || `Export failed (${response.status})`, response.status);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;

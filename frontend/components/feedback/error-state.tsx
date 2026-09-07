@@ -10,12 +10,12 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="glass rounded-3xl border border-destructive/25 px-6 py-14">
-      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-destructive">Error</p>
-      <h3 className="display mt-3 text-4xl">{title}</h3>
-      <p className="mt-3 max-w-lg text-sm leading-6 text-muted-foreground">{message}</p>
+    <div className="surface rounded-2xl px-6 py-12 sm:px-10 sm:py-14">
+      <p className="kicker text-destructive">Error</p>
+      <h3 className="display mt-3 max-w-xl text-[1.45rem] sm:text-[1.6rem]">{title}</h3>
+      <p className="mt-2.5 max-w-lg text-sm leading-6 text-muted-foreground">{message}</p>
       {onRetry ? (
-        <Button className="mt-6" type="button" onClick={onRetry}>
+        <Button className="mt-6" type="button" variant="primary" onClick={onRetry}>
           Retry
         </Button>
       ) : null}

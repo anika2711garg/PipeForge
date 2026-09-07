@@ -18,7 +18,7 @@ export function PipelinePage() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-[var(--space-section)]">
       <PipelinePanel status={status.data} />
       <DemoTools />
     </div>

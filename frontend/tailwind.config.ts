@@ -25,8 +25,13 @@ const config: Config = {
         input: "hsl(var(--input))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          hover: "hsl(var(--primary-hover))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        tint: "hsl(var(--tint))",
+        lavender: "hsl(var(--lavender))",
+        "accent-warm": "hsl(var(--accent-warm))",
+        "accent-teal": "hsl(var(--accent-teal))",
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
@@ -49,16 +54,21 @@ const config: Config = {
           foreground: "hsl(var(--sidebar-foreground))",
           border: "hsl(var(--sidebar-border))",
           accent: "hsl(var(--sidebar-accent))",
+          muted: "hsl(var(--sidebar-muted))",
         },
       },
       boxShadow: {
         card: "var(--shadow-card)",
+        elevated: "var(--shadow-elevated)",
         pop: "var(--shadow-pop)",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      transitionTimingFunction: {
+        out: "var(--ease-out)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],

@@ -14,6 +14,7 @@ import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, THead, Th, Td } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/ui/export-button";
 import { fetchEventFacets, fetchEvents } from "@/lib/api/events";
 import type { WarehouseEvent } from "@/lib/api/types";
 import { formatTimestamp } from "@/lib/format/dates";
@@ -64,93 +65,96 @@ export function ExplorerPage() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
         title="Data Explorer"
         description="Read-only warehouse events. Filters are applied on the FastAPI endpoint; no SQL is exposed."
+        actions={<ExportButton kind="events" label="Export snapshot" />}
       />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <Input
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(0);
-          }}
-          placeholder="Search event ID, user, file, source"
-          className="max-w-sm"
-        />
-        <Select
-          value={eventType}
-          onChange={(event) => {
-            setEventType(event.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="">All types</option>
-          {(facets.data?.event_types ?? []).map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={currency}
-          onChange={(event) => {
-            setCurrency(event.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="">All currencies</option>
-          {(facets.data?.currencies ?? []).map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={source}
-          onChange={(event) => {
-            setSource(event.target.value);
-            setPage(0);
-          }}
-        >
-          <option value="">All sources</option>
-          {(facets.data?.sources ?? []).map((item) => (
-            <option key={item} value={item}>
-              {item}
-            </option>
-          ))}
-        </Select>
-        <Select value={sort} onChange={(event) => setSort(event.target.value)}>
-          <option value="id">Sort: ingested</option>
-          <option value="occurred_at_utc">Sort: occurred</option>
-          <option value="event_id">Sort: event ID</option>
-          <option value="amount_minor_units">Sort: amount</option>
-        </Select>
-        <Select value={order} onChange={(event) => setOrder(event.target.value as "asc" | "desc")}>
-          <option value="desc">Desc</option>
-          <option value="asc">Asc</option>
-        </Select>
-        <Button
-          type="button"
-          size="sm"
-          variant="ghost"
-          onClick={() => {
-            setSearch("");
-            setEventType("");
-            setCurrency("");
-            setSource("");
-            setPage(0);
-          }}
-        >
-          Reset filters
-        </Button>
-        <span className="text-xs text-muted-foreground">{events.data?.total ?? 0} events</span>
+      <div className="rounded-[1.25rem] border border-border bg-tint/50 p-3 md:p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(0);
+            }}
+            placeholder="Search event ID, user, file, source"
+            className="max-w-sm"
+          />
+          <Select
+            value={eventType}
+            onChange={(event) => {
+              setEventType(event.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="">All types</option>
+            {(facets.data?.event_types ?? []).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={currency}
+            onChange={(event) => {
+              setCurrency(event.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="">All currencies</option>
+            {(facets.data?.currencies ?? []).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={source}
+            onChange={(event) => {
+              setSource(event.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="">All sources</option>
+            {(facets.data?.sources ?? []).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
+          <Select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <option value="id">Sort: ingested</option>
+            <option value="occurred_at_utc">Sort: occurred</option>
+            <option value="event_id">Sort: event ID</option>
+            <option value="amount_minor_units">Sort: amount</option>
+          </Select>
+          <Select value={order} onChange={(event) => setOrder(event.target.value as "asc" | "desc")}>
+            <option value="desc">Desc</option>
+            <option value="asc">Asc</option>
+          </Select>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setSearch("");
+              setEventType("");
+              setCurrency("");
+              setSource("");
+              setPage(0);
+            }}
+          >
+            Reset filters
+          </Button>
+          <span className="text-xs font-medium text-muted-foreground">{events.data?.total ?? 0} events</span>
+        </div>
       </div>
       {events.isPending ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
+            <Skeleton key={index} className="h-12 w-full rounded-xl" />
           ))}
         </div>
       ) : (events.data?.items.length ?? 0) === 0 ? (
@@ -160,7 +164,7 @@ export function ExplorerPage() {
           description="Run the pipeline to ingest events, or clear filters if a search hid every row."
         />
       ) : (
-        <div className="rounded-lg border border-border bg-card">
+        <div className="surface overflow-hidden rounded-[1.5rem]">
           <Table>
             <THead>
               <tr>
@@ -177,7 +181,7 @@ export function ExplorerPage() {
               {(events.data?.items ?? []).map((row) => (
                 <tr
                   key={row.id}
-                  className="cursor-pointer hover:bg-muted/60"
+                  className="cursor-pointer transition-colors duration-150 hover:bg-tint"
                   onClick={() => setSelected(row)}
                 >
                   <Td className="font-mono text-xs">{row.event_id}</Td>

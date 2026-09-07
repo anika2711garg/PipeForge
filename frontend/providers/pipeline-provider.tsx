@@ -30,6 +30,9 @@ export function PipelineProvider({ children }: { children: ReactNode }) {
         client.invalidateQueries({ queryKey: queryKeys.metrics }),
         client.invalidateQueries({ queryKey: queryKeys.quarantine }),
         client.invalidateQueries({ queryKey: queryKeys.system }),
+        client.invalidateQueries({ queryKey: queryKeys.insights }),
+        client.invalidateQueries({ queryKey: queryKeys.activity }),
+        client.invalidateQueries({ queryKey: queryKeys.alerts }),
         client.invalidateQueries({ queryKey: ["events"] }),
       ]);
       if (result.status === "completed") {

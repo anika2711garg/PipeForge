@@ -69,7 +69,7 @@ export function Dialog({
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-black/45"
+        className="absolute inset-0 bg-foreground/25"
         aria-label="Close dialog"
         onClick={onClose}
       />
@@ -78,7 +78,7 @@ export function Dialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
-        className="relative w-full max-w-lg rounded-2xl border border-border bg-card p-5 shadow-pop"
+        className="relative w-full max-w-lg scale-100 rounded-[1.5rem] border border-border bg-card p-6 shadow-pop motion-safe:animate-rise"
       >
         <h2 id="dialog-title" className="text-base font-semibold">
           {title}
