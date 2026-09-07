@@ -29,30 +29,30 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative flex h-full flex-col overflow-hidden text-white transition-[width] duration-200 ease-out",
-        "bg-[linear-gradient(165deg,#1d4ed8_0%,#4c1d95_48%,#0f766e_100%)]",
-        collapsed ? "w-[76px]" : "w-[268px]",
+        "relative flex h-full flex-col overflow-hidden text-sidebar-foreground transition-[width] duration-200 ease-out",
+        "bg-[linear-gradient(180deg,#141c2e_0%,#182234_55%,#1a2438_100%)]",
+        collapsed ? "w-[76px]" : "w-[252px]",
         mobileOpen === false && "max-lg:hidden",
       )}
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-50"
+        className="pointer-events-none absolute inset-0 opacity-40"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(circle at 10% 0%, rgba(255,255,255,0.28), transparent 40%), radial-gradient(circle at 90% 90%, rgba(251,146,60,0.28), transparent 35%)",
+            "radial-gradient(circle at 20% 0%, rgba(58,95,205,0.35), transparent 48%), radial-gradient(circle at 90% 90%, rgba(160,140,110,0.12), transparent 40%)",
         }}
       />
-      <div className={cn("relative z-10 flex h-16 items-center border-b border-white/15 px-5", collapsed && "justify-center px-2")}>
+      <div className={cn("relative z-10 flex h-16 items-center border-b border-white/8 px-5", collapsed && "justify-center px-2")}>
         <Logo collapsed={collapsed} inverse />
       </div>
 
-      <nav className="relative z-10 flex-1 space-y-7 overflow-auto px-3 py-5" aria-label="Primary">
+      <nav className="relative z-10 flex-1 space-y-8 overflow-auto px-3 py-5" aria-label="Primary">
         <LayoutGroup id="sidebar-nav">
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
               {!collapsed ? (
-                <p className="mb-2.5 px-3 text-[10px] font-extrabold uppercase tracking-[0.2em] text-sky-100/75">
+                <p className="mb-2.5 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-sidebar-muted">
                   {group.label}
                 </p>
               ) : null}
@@ -66,7 +66,9 @@ export function Sidebar({
                       onClick={onNavigate}
                       className={cn(
                         "relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-[13.5px] transition-colors duration-200",
-                        active ? "font-bold text-white" : "text-sky-100/80 hover:bg-white/10 hover:text-white",
+                        active
+                          ? "font-semibold text-white"
+                          : "text-sidebar-muted hover:bg-white/5 hover:text-sidebar-foreground",
                         collapsed && "justify-center px-0",
                       )}
                       aria-current={active ? "page" : undefined}
@@ -74,7 +76,7 @@ export function Sidebar({
                       {active ? (
                         <motion.span
                           layoutId={reduce ? undefined : "nav-active"}
-                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-400 via-fuchsia-500 to-violet-500 shadow-[0_10px_28px_rgba(244,114,182,0.45)]"
+                          className="absolute inset-0 rounded-xl bg-[#3A5FCD] shadow-[0_8px_22px_rgba(58,95,205,0.35)]"
                           transition={{ type: "spring", stiffness: 420, damping: 36 }}
                           aria-hidden="true"
                         />
@@ -97,14 +99,14 @@ export function Sidebar({
         </LayoutGroup>
       </nav>
 
-      <div className="relative z-10 space-y-1 border-t border-white/15 p-3">
+      <div className="relative z-10 space-y-1 border-t border-white/8 p-3">
         <div className={cn("flex", collapsed ? "justify-center" : "px-1")}>
           <ModeSwitch showLabel={!collapsed} inverse />
         </div>
         <Button
           type="button"
           variant="ghost"
-          className="hidden w-full justify-center text-sky-100/80 hover:bg-white/10 hover:text-white lg:inline-flex"
+          className="hidden w-full justify-center text-sidebar-muted hover:bg-white/5 hover:text-sidebar-foreground lg:inline-flex"
           onClick={() => update({ sidebarCollapsed: !collapsed })}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >

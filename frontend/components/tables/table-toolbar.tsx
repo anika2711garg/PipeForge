@@ -28,20 +28,22 @@ export function TableToolbar({
 }) {
   return (
     <div className="mb-4 space-y-3">
-      <div className="rounded-[1.35rem] border border-blue-200 bg-gradient-to-r from-blue-50 via-violet-50 to-fuchsia-50 p-3 shadow-card md:p-4 dark:border-blue-500/20 dark:from-blue-950/40 dark:via-violet-950/30 dark:to-fuchsia-950/30">
+      <div className="rounded-[1.25rem] border border-[#d8dee8]/90 bg-white/70 p-3 shadow-card backdrop-blur-md md:p-4 dark:border-border dark:bg-card/70">
         <div className="flex flex-wrap items-center gap-2">
           <Input
             value={query}
             onChange={(event) => onQuery(event.target.value)}
             placeholder={placeholder}
-            className="max-w-sm border-blue-200 bg-white/90"
+            className="max-w-sm"
           />
           {filters}
           {actions}
           <Button type="button" size="sm" variant="ghost" onClick={onClear}>
             Reset filters
           </Button>
-          <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">{resultCount} results</span>
+          <span className="rounded-full bg-[#eef2f8] px-2.5 py-1 text-xs font-semibold text-[#3A5FCD] dark:bg-tint dark:text-primary">
+            {resultCount} results
+          </span>
         </div>
       </div>
       <div className="flex items-center gap-2 text-xs text-muted-foreground">

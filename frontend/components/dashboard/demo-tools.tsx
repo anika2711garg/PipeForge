@@ -60,16 +60,16 @@ export function DemoTools() {
   const busy = generate.isPending || reset.isPending;
 
   return (
-    <section className="overflow-hidden rounded-[1.6rem] border border-amber-300 bg-gradient-to-r from-amber-200 via-orange-200 to-rose-200 px-5 py-5 shadow-card md:px-6 dark:border-amber-500/30 dark:from-amber-950/50 dark:via-orange-950/40 dark:to-rose-950/40">
+    <section className="overflow-hidden rounded-[1.5rem] border border-dashed border-[#d2c4ae] bg-gradient-to-r from-[#f4eee6]/90 to-[#eeeaf6]/70 px-5 py-5 md:px-6 dark:border-border dark:from-champagne/40 dark:to-lavender/30">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-start gap-3">
-          <span className="rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-2.5 text-white shadow-lg">
+          <span className="rounded-2xl bg-white p-2.5 text-[#9a7850] shadow-card dark:bg-card">
             <Beaker className="h-4 w-4" aria-hidden="true" />
           </span>
           <div>
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-orange-800 dark:text-orange-200">Sandbox</p>
-            <h2 className="mt-1 text-lg font-extrabold tracking-tight text-orange-950 dark:text-orange-50">Demo dataset</h2>
-            <p className="mt-1 max-w-xl text-sm leading-6 text-orange-900/80 dark:text-orange-100/75">
+            <p className="kicker !text-[#9a7850]">Sandbox</p>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">Demo dataset</h2>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
               Synthetic demonstration tools only. These actions are not part of production ingestion.
             </p>
           </div>

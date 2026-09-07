@@ -18,15 +18,15 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-2xl font-bold tracking-tight transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-50 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.985]",
+        "inline-flex items-center justify-center gap-2 rounded-2xl font-semibold tracking-tight transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-50 motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0 motion-safe:active:scale-[0.985]",
         variant === "primary" &&
-          "bg-gradient-to-r from-blue-500 via-violet-500 to-fuchsia-500 text-white shadow-[0_12px_28px_rgba(139,92,246,0.4)] hover:brightness-110",
+          "bg-[#3A5FCD] text-white shadow-[0_10px_24px_rgba(58,95,205,0.28)] hover:bg-[#2f4fb0] hover:shadow-[0_14px_28px_rgba(58,95,205,0.34)]",
         variant === "secondary" &&
-          "bg-gradient-to-r from-cyan-100 to-blue-100 text-blue-800 hover:from-cyan-200 hover:to-blue-200 dark:from-cyan-950 dark:to-blue-950 dark:text-cyan-100",
-        variant === "ghost" && "bg-transparent text-foreground hover:bg-blue-100/70 dark:hover:bg-blue-500/10",
+          "bg-[#eef2f8] text-[#1c2740] hover:bg-[#e3eaf6] dark:bg-tint dark:text-foreground dark:hover:bg-tint/80",
+        variant === "ghost" && "bg-transparent text-foreground hover:bg-[#eef2f8] dark:hover:bg-tint",
         variant === "outline" &&
-          "border-2 border-violet-300 bg-white/80 text-violet-800 hover:border-fuchsia-400 hover:bg-fuchsia-50 dark:border-violet-500/40 dark:bg-slate-900/70 dark:text-violet-100",
-        variant === "danger" && "bg-gradient-to-r from-rose-500 to-orange-500 text-white hover:brightness-110",
+          "border border-[#c9d4e8] bg-white/80 text-[#1c2740] backdrop-blur-sm hover:border-[#3A5FCD]/40 hover:bg-[#f5f7fb] dark:border-border dark:bg-card/70 dark:text-foreground",
+        variant === "danger" && "bg-[#c4474a] text-white hover:bg-[#a93b3e]",
         size === "sm" && "h-9 min-h-9 px-3.5 text-xs",
         size === "md" && "h-11 min-h-11 px-5 text-sm",
         size === "lg" && "h-12 min-h-12 px-5 text-sm",

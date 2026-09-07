@@ -2,11 +2,11 @@ import { cn } from "@/lib/utils/cn";
 
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={cn("h-8 w-8 shrink-0 drop-shadow-[0_6px_14px_rgba(48,92,222,0.45)]", className)} aria-hidden="true">
+    <svg viewBox="0 0 32 32" className={cn("h-8 w-8 shrink-0", className)} aria-hidden="true">
       <defs>
         <linearGradient id="pf-mark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#5B86F5" />
-          <stop offset="100%" stopColor="#305CDE" />
+          <stop offset="0%" stopColor="#5B7FE0" />
+          <stop offset="100%" stopColor="#3A5FCD" />
         </linearGradient>
       </defs>
       <rect width="32" height="32" rx="10" fill="url(#pf-mark)" />
@@ -32,13 +32,13 @@ export function Logo({
         <div className="min-w-0">
           <p
             className={cn(
-              "truncate text-[1.08rem] font-bold tracking-tight",
+              "truncate text-[1.05rem] font-bold tracking-tight",
               inverse ? "text-sidebar-foreground" : "text-foreground",
             )}
           >
             PipeForge
           </p>
-          <p className={cn("mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]", inverse ? "text-sky-200/70" : "text-primary")}>
+          <p className={cn("mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em]", inverse ? "text-sidebar-muted" : "text-muted-foreground")}>
             Control center
           </p>
         </div>
